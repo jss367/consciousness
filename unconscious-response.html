@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unconscious Response Training</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1a1a2e;
+            color: #eee;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            color: #fff;
+        }
+
+        .subtitle {
+            color: #888;
+            margin-bottom: 30px;
+            text-align: center;
+            max-width: 650px;
+            line-height: 1.6;
+        }
+
+        .demo-container {
+            background: #0d0d1a;
+            border-radius: 16px;
+            padding: 40px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 400px;
+            height: 300px;
+            position: relative;
+        }
+
+        .shape {
+            display: none;
+            width: 120px;
+            height: 120px;
+        }
+
+        .shape.visible {
+            display: block;
+        }
+
+        .shape.square {
+            border-radius: 8px;
+        }
+
+        .shape.circle {
+            border-radius: 50%;
+        }
+
+        .shape.triangle {
+            width: 0;
+            height: 0;
+            border-left: 60px solid transparent;
+            border-right: 60px solid transparent;
+            border-bottom: 104px solid currentColor;
+            background: transparent !important;
+        }
+
+        .countdown {
+            font-size: 4rem;
+            color: #444;
+        }
+
+        .feedback {
+            position: absolute;
+            bottom: 20px;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .feedback.hit {
+            color: #4ade80;
+        }
+
+        .feedback.miss {
+            color: #f87171;
+        }
+
+        .feedback.false-alarm {
+            color: #fbbf24;
+        }
+
+        .stats-container {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .stat-box {
+            background: #16213e;
+            border-radius: 12px;
+            padding: 15px 25px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #6366f1;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #888;
+            margin-top: 4px;
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 20px;
+            max-width: 600px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        label {
+            font-size: 0.85rem;
+            color: #aaa;
+        }
+
+        input[type="range"] {
+            width: 120px;
+            accent-color: #6366f1;
+        }
+
+        .value-display {
+            font-size: 0.9rem;
+            color: #6366f1;
+            font-weight: 500;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        button {
+            background: #6366f1;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background: #4f46e5;
+        }
+
+        button.secondary {
+            background: #2a2a4a;
+        }
+
+        button.secondary:hover {
+            background: #3a3a5a;
+        }
+
+        button:disabled {
+            background: #444;
+            cursor: not-allowed;
+        }
+
+        .response-key {
+            background: #16213e;
+            border-radius: 12px;
+            padding: 15px 30px;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .response-key kbd {
+            background: #6366f1;
+            padding: 8px 20px;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            font-family: inherit;
+            margin: 0 5px;
+        }
+
+        .instructions {
+            background: #16213e;
+            border-radius: 12px;
+            padding: 25px;
+            max-width: 650px;
+        }
+
+        .instructions h2 {
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            color: #6366f1;
+        }
+
+        .instructions p {
+            color: #bbb;
+            line-height: 1.6;
+            margin-bottom: 12px;
+            font-size: 0.95rem;
+        }
+
+        .target-display {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #16213e;
+            border-radius: 12px;
+        }
+
+        .target-display span {
+            color: #aaa;
+        }
+
+        .target-preview {
+            width: 50px;
+            height: 50px;
+            background: #3b82f6;
+            border-radius: 6px;
+        }
+
+        .reaction-history {
+            background: #16213e;
+            border-radius: 12px;
+            padding: 20px;
+            max-width: 650px;
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        .reaction-history h3 {
+            font-size: 1rem;
+            margin-bottom: 15px;
+            color: #6366f1;
+        }
+
+        .history-chart {
+            display: flex;
+            align-items: flex-end;
+            gap: 4px;
+            height: 100px;
+            padding: 10px 0;
+            overflow-x: auto;
+        }
+
+        .history-bar {
+            width: 8px;
+            min-width: 8px;
+            background: #6366f1;
+            border-radius: 2px;
+            transition: height 0.2s;
+        }
+
+        .history-bar.miss {
+            background: #f87171;
+        }
+
+        .phase-indicator {
+            background: #4f46e5;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
+
+        .progress-phases {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .phase {
+            padding: 6px 14px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            background: #2a2a4a;
+            color: #888;
+        }
+
+        .phase.active {
+            background: #6366f1;
+            color: white;
+        }
+
+        .phase.completed {
+            background: #065f46;
+            color: #6ee7b7;
+        }
+    </style>
+</head>
+<body>
+    <h1>Unconscious Response Training</h1>
+    <p class="subtitle">
+        Train yourself to respond to a blue square before conscious awareness kicks in.
+        Over time, your reaction will become automatic — you'll press the key before you "know" what you saw.
+    </p>
+
+    <div class="target-display">
+        <span>Your target:</span>
+        <div class="target-preview"></div>
+        <span>Blue Square — Press SPACE when you see it</span>
+    </div>
+
+    <div class="progress-phases">
+        <div class="phase" data-phase="1">Phase 1: Learning</div>
+        <div class="phase" data-phase="2">Phase 2: Speed</div>
+        <div class="phase" data-phase="3">Phase 3: Automatic</div>
+    </div>
+
+    <div class="demo-container">
+        <div class="shape" id="shape"></div>
+        <div class="countdown" id="countdown"></div>
+        <div class="feedback" id="feedback"></div>
+    </div>
+
+    <div class="stats-container">
+        <div class="stat-box">
+            <div class="stat-value" id="trial-count">0</div>
+            <div class="stat-label">Trials</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-value" id="hit-rate">--%</div>
+            <div class="stat-label">Hit Rate</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-value" id="avg-reaction">--</div>
+            <div class="stat-label">Avg Reaction (ms)</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-value" id="fastest">--</div>
+            <div class="stat-label">Fastest (ms)</div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <div class="control-group">
+            <label>Display Duration</label>
+            <input type="range" id="duration" min="50" max="500" value="300">
+            <span class="value-display" id="duration-val">300ms</span>
+        </div>
+        <div class="control-group">
+            <label>Interval (min)</label>
+            <input type="range" id="interval-min" min="500" max="2000" value="800">
+            <span class="value-display" id="interval-min-val">800ms</span>
+        </div>
+        <div class="control-group">
+            <label>Interval (max)</label>
+            <input type="range" id="interval-max" min="1000" max="3000" value="2000">
+            <span class="value-display" id="interval-max-val">2000ms</span>
+        </div>
+    </div>
+
+    <div class="buttons">
+        <button id="start">Start Training (or press Enter)</button>
+        <button id="reset" class="secondary">Reset Stats</button>
+    </div>
+
+    <div class="response-key">
+        Press <kbd>SPACE</kbd> when you see a <strong style="color: #3b82f6;">blue square</strong>
+    </div>
+
+    <div class="reaction-history">
+        <h3>Reaction Time History (blue square trials only)</h3>
+        <div class="history-chart" id="history-chart"></div>
+    </div>
+
+    <div class="instructions">
+        <h2>The Experiment</h2>
+        <p>
+            This demonstrates that conscious awareness isn't necessary for behavioral responses.
+            At first, you'll consciously see the blue square, recognize it, then decide to press space.
+        </p>
+        <p>
+            With practice, the response becomes <em>automatic</em>. You'll find yourself pressing
+            the key before you're consciously aware of what you saw. Your finger "knows" before "you" do.
+        </p>
+        <h2>Training Phases</h2>
+        <p>
+            <strong>Phase 1 (Learning):</strong> Shapes appear for 300ms. Get comfortable with the task.<br>
+            <strong>Phase 2 (Speed):</strong> Duration drops to 150ms. You must respond faster.<br>
+            <strong>Phase 3 (Automatic):</strong> Duration at 80ms. Conscious recognition becomes difficult —
+            but your trained response persists.
+        </p>
+        <h2>What to Notice</h2>
+        <p>
+            Pay attention to the <em>feeling</em> of your responses. Early on, there's a clear sequence:
+            see → recognize → decide → press. Later, it becomes: press → "wait, what did I just see?"
+        </p>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('shape');
+        const countdownEl = document.getElementById('countdown');
+        const feedbackEl = document.getElementById('feedback');
+        const historyChart = document.getElementById('history-chart');
+
+        const shapes = ['square', 'circle', 'triangle'];
+        const colors = [
+            { name: 'blue', value: '#3b82f6' },
+            { name: 'red', value: '#ef4444' },
+            { name: 'green', value: '#22c55e' },
+            { name: 'yellow', value: '#eab308' },
+            { name: 'purple', value: '#a855f7' }
+        ];
+
+        const TARGET_SHAPE = 'square';
+        const TARGET_COLOR = 'blue';
+
+        let isRunning = false;
+        let currentTrial = null;
+        let trialTimeout = null;
+        let responseWindow = false;
+
+        let stats = {
+            trials: 0,
+            hits: 0,
+            misses: 0,
+            falseAlarms: 0,
+            reactionTimes: [],
+            phase: 1
+        };
+
+        const params = {
+            duration: 300,
+            intervalMin: 800,
+            intervalMax: 2000
+        };
+
+        const phases = {
+            1: { duration: 300, trials: 20, name: 'Learning' },
+            2: { duration: 150, trials: 40, name: 'Speed' },
+            3: { duration: 80, trials: 60, name: 'Automatic' }
+        };
+
+        // Controls
+        document.querySelectorAll('input[type="range"]').forEach(input => {
+            input.addEventListener('input', (e) => {
+                const id = e.target.id;
+                const value = parseInt(e.target.value);
+
+                if (id === 'duration') params.duration = value;
+                else if (id === 'interval-min') params.intervalMin = value;
+                else if (id === 'interval-max') params.intervalMax = value;
+
+                document.getElementById(`${id}-val`).textContent = `${value}ms`;
+            });
+        });
+
+        function updatePhaseDisplay() {
+            document.querySelectorAll('.phase').forEach(el => {
+                const phase = parseInt(el.dataset.phase);
+                el.classList.remove('active', 'completed');
+                if (phase < stats.phase) el.classList.add('completed');
+                else if (phase === stats.phase) el.classList.add('active');
+            });
+        }
+
+        function checkPhaseProgress() {
+            if (stats.trials >= phases[2].trials && stats.phase === 1) {
+                stats.phase = 2;
+                params.duration = phases[2].duration;
+                document.getElementById('duration').value = params.duration;
+                document.getElementById('duration-val').textContent = `${params.duration}ms`;
+                updatePhaseDisplay();
+            } else if (stats.trials >= phases[3].trials && stats.phase === 2) {
+                stats.phase = 3;
+                params.duration = phases[3].duration;
+                document.getElementById('duration').value = params.duration;
+                document.getElementById('duration-val').textContent = `${params.duration}ms`;
+                updatePhaseDisplay();
+            }
+        }
+
+        function updateStats() {
+            document.getElementById('trial-count').textContent = stats.trials;
+
+            const targetTrials = stats.hits + stats.misses;
+            const hitRate = targetTrials > 0 ? Math.round((stats.hits / targetTrials) * 100) : 0;
+            document.getElementById('hit-rate').textContent = `${hitRate}%`;
+
+            if (stats.reactionTimes.length > 0) {
+                const avg = Math.round(stats.reactionTimes.reduce((a, b) => a + b, 0) / stats.reactionTimes.length);
+                const fastest = Math.min(...stats.reactionTimes);
+                document.getElementById('avg-reaction').textContent = `${avg}`;
+                document.getElementById('fastest').textContent = `${fastest}`;
+            }
+        }
+
+        function addToHistory(reactionTime, missed = false) {
+            const bar = document.createElement('div');
+            bar.className = 'history-bar' + (missed ? ' miss' : '');
+            // Scale: 100ms = 20px, 500ms = 100px
+            const height = missed ? 100 : Math.min(100, Math.max(10, (reactionTime / 5)));
+            bar.style.height = `${height}px`;
+            bar.title = missed ? 'Missed' : `${reactionTime}ms`;
+            historyChart.appendChild(bar);
+            historyChart.scrollLeft = historyChart.scrollWidth;
+        }
+
+        function showFeedback(type, reactionTime = null) {
+            feedbackEl.className = 'feedback ' + type;
+            if (type === 'hit') {
+                feedbackEl.textContent = `Hit! ${reactionTime}ms`;
+            } else if (type === 'miss') {
+                feedbackEl.textContent = 'Missed!';
+            } else if (type === 'false-alarm') {
+                feedbackEl.textContent = 'Wrong shape!';
+            }
+
+            setTimeout(() => {
+                feedbackEl.textContent = '';
+                feedbackEl.className = 'feedback';
+            }, 500);
+        }
+
+        function getRandomShape() {
+            const shape = shapes[Math.floor(Math.random() * shapes.length)];
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            return { shape, color };
+        }
+
+        function showShape(shapeType, color) {
+            const el = document.getElementById('shape');
+            el.className = 'shape visible ' + shapeType;
+
+            if (shapeType === 'triangle') {
+                el.style.background = 'transparent';
+                el.style.borderBottomColor = color;
+            } else {
+                el.style.background = color;
+                el.style.borderBottomColor = 'transparent';
+            }
+        }
+
+        function hideShape() {
+            const el = document.getElementById('shape');
+            el.className = 'shape';
+        }
+
+        function runTrial() {
+            if (!isRunning) return;
+
+            // Bias toward target (30% chance of blue square)
+            let trial;
+            if (Math.random() < 0.3) {
+                trial = { shape: TARGET_SHAPE, color: colors.find(c => c.name === TARGET_COLOR) };
+            } else {
+                do {
+                    trial = getRandomShape();
+                } while (trial.shape === TARGET_SHAPE && trial.color.name === TARGET_COLOR);
+            }
+
+            currentTrial = {
+                ...trial,
+                isTarget: trial.shape === TARGET_SHAPE && trial.color.name === TARGET_COLOR,
+                startTime: performance.now(),
+                responded: false
+            };
+
+            responseWindow = true;
+            showShape(trial.shape, trial.color.value);
+
+            // Hide after duration
+            setTimeout(() => {
+                hideShape();
+
+                // Give a response window after shape disappears
+                setTimeout(() => {
+                    if (currentTrial && !currentTrial.responded) {
+                        if (currentTrial.isTarget) {
+                            stats.misses++;
+                            stats.trials++;
+                            showFeedback('miss');
+                            addToHistory(0, true);
+                            updateStats();
+                            checkPhaseProgress();
+                        }
+                    }
+                    responseWindow = false;
+                    currentTrial = null;
+
+                    // Schedule next trial
+                    const interval = params.intervalMin + Math.random() * (params.intervalMax - params.intervalMin);
+                    trialTimeout = setTimeout(runTrial, interval);
+                }, 300);
+            }, params.duration);
+        }
+
+        function handleResponse() {
+            if (!responseWindow || !currentTrial || currentTrial.responded) return;
+
+            currentTrial.responded = true;
+            const reactionTime = Math.round(performance.now() - currentTrial.startTime);
+
+            if (currentTrial.isTarget) {
+                stats.hits++;
+                stats.trials++;
+                stats.reactionTimes.push(reactionTime);
+                showFeedback('hit', reactionTime);
+                addToHistory(reactionTime);
+            } else {
+                stats.falseAlarms++;
+                showFeedback('false-alarm');
+            }
+
+            updateStats();
+            checkPhaseProgress();
+        }
+
+        async function startTraining() {
+            if (isRunning) {
+                isRunning = false;
+                clearTimeout(trialTimeout);
+                hideShape();
+                document.getElementById('start').textContent = 'Start Training (or press Enter)';
+                return;
+            }
+
+            document.getElementById('start').textContent = 'Stop Training';
+
+            // Countdown
+            for (let i = 3; i > 0; i--) {
+                countdownEl.textContent = i;
+                await new Promise(r => setTimeout(r, 800));
+            }
+            countdownEl.textContent = '';
+
+            isRunning = true;
+            runTrial();
+        }
+
+        function resetStats() {
+            stats = {
+                trials: 0,
+                hits: 0,
+                misses: 0,
+                falseAlarms: 0,
+                reactionTimes: [],
+                phase: 1
+            };
+            params.duration = phases[1].duration;
+            document.getElementById('duration').value = params.duration;
+            document.getElementById('duration-val').textContent = `${params.duration}ms`;
+            historyChart.innerHTML = '';
+            updateStats();
+            updatePhaseDisplay();
+            document.getElementById('avg-reaction').textContent = '--';
+            document.getElementById('fastest').textContent = '--';
+            document.getElementById('hit-rate').textContent = '--%';
+        }
+
+        document.getElementById('start').addEventListener('click', startTraining);
+        document.getElementById('reset').addEventListener('click', resetStats);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                handleResponse();
+            } else if (e.code === 'Enter' && !isRunning) {
+                e.preventDefault();
+                startTraining();
+            }
+        });
+
+        // Initialize
+        updatePhaseDisplay();
+        updateStats();
+    </script>
+</body>
+</html>
