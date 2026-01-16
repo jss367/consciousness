@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Color Phi Phenomenon Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1a1a2e;
+            color: #eee;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            color: #fff;
+        }
+
+        .subtitle {
+            color: #888;
+            margin-bottom: 30px;
+            text-align: center;
+            max-width: 600px;
+            line-height: 1.5;
+        }
+
+        .demo-container {
+            background: #0d0d1a;
+            border-radius: 16px;
+            padding: 40px;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .fixation-cross {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 24px;
+            color: #444;
+            pointer-events: none;
+        }
+
+        canvas {
+            display: block;
+            cursor: pointer;
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 20px;
+            max-width: 700px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        label {
+            font-size: 0.85rem;
+            color: #aaa;
+        }
+
+        input[type="range"] {
+            width: 120px;
+            accent-color: #6366f1;
+        }
+
+        .value-display {
+            font-size: 0.9rem;
+            color: #6366f1;
+            font-weight: 500;
+        }
+
+        .color-picker-group {
+            display: flex;
+            gap: 15px;
+        }
+
+        .color-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        input[type="color"] {
+            width: 50px;
+            height: 35px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        button {
+            background: #6366f1;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background: #4f46e5;
+        }
+
+        button:disabled {
+            background: #444;
+            cursor: not-allowed;
+        }
+
+        .instructions {
+            background: #16213e;
+            border-radius: 12px;
+            padding: 25px;
+            max-width: 600px;
+            margin-top: 20px;
+        }
+
+        .instructions h2 {
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            color: #6366f1;
+        }
+
+        .instructions p {
+            color: #bbb;
+            line-height: 1.6;
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+        }
+
+        .instructions ul {
+            color: #bbb;
+            line-height: 1.8;
+            padding-left: 20px;
+            font-size: 0.95rem;
+        }
+
+        .mode-toggle {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .mode-btn {
+            padding: 8px 20px;
+            background: #2a2a4a;
+            border: 2px solid transparent;
+        }
+
+        .mode-btn.active {
+            border-color: #6366f1;
+            background: #3a3a5a;
+        }
+
+        .preset-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .preset-btn {
+            padding: 8px 16px;
+            background: #2a2a4a;
+            font-size: 0.85rem;
+        }
+
+        .preset-btn:hover {
+            background: #3a3a5a;
+        }
+    </style>
+</head>
+<body>
+    <h1>Color Phi Phenomenon</h1>
+    <p class="subtitle">Experience the illusion that puzzled philosophers of mind. Watch as your brain "fills in" motion and color change that never actually occurred.</p>
+
+    <div class="mode-toggle">
+        <button class="mode-btn active" data-mode="classic">Classic Phi</button>
+        <button class="mode-btn" data-mode="continuous">Continuous Loop</button>
+    </div>
+
+    <div class="demo-container">
+        <div class="fixation-cross">+</div>
+        <canvas id="canvas" width="500" height="300"></canvas>
+    </div>
+
+    <div class="preset-buttons">
+        <button class="preset-btn" data-preset="optimal">Optimal Settings</button>
+        <button class="preset-btn" data-preset="slow">Slow Motion</button>
+        <button class="preset-btn" data-preset="fast">Very Fast</button>
+        <button class="preset-btn" data-preset="close">Close Together</button>
+        <button class="preset-btn" data-preset="far">Far Apart</button>
+    </div>
+
+    <div class="controls">
+        <div class="control-group">
+            <label>Stimulus Duration</label>
+            <input type="range" id="duration" min="30" max="300" value="100">
+            <span class="value-display" id="duration-val">100ms</span>
+        </div>
+        <div class="control-group">
+            <label>Inter-Stimulus Interval</label>
+            <input type="range" id="isi" min="0" max="200" value="50">
+            <span class="value-display" id="isi-val">50ms</span>
+        </div>
+        <div class="control-group">
+            <label>Dot Separation</label>
+            <input type="range" id="separation" min="50" max="300" value="200">
+            <span class="value-display" id="separation-val">200px</span>
+        </div>
+        <div class="control-group">
+            <label>Dot Size</label>
+            <input type="range" id="size" min="10" max="60" value="30">
+            <span class="value-display" id="size-val">30px</span>
+        </div>
+        <div class="control-group color-picker-group">
+            <div class="color-item">
+                <label>Color 1</label>
+                <input type="color" id="color1" value="#ff4444">
+            </div>
+            <div class="color-item">
+                <label>Color 2</label>
+                <input type="color" id="color2" value="#44ff44">
+            </div>
+        </div>
+    </div>
+
+    <button id="start">Start Demo (or press Space)</button>
+
+    <div class="instructions">
+        <h2>What to Look For</h2>
+        <p>Focus on the + in the center. When you trigger the demo, two colored dots will flash in sequence at different positions.</p>
+        <p><strong>The illusion:</strong> Instead of seeing two separate flashes, you should perceive a single dot that <em>moves</em> from one position to the other — and appears to change color <em>midway through its trajectory</em>.</p>
+        <p><strong>The puzzle:</strong> How did your brain "know" what color the second dot would be, in order to fill in the color change during the perceived motion? The second dot hadn't appeared yet when the motion began!</p>
+        <h2>Tips</h2>
+        <ul>
+            <li>Keep your eyes fixed on the central cross</li>
+            <li>Use peripheral vision to observe the dots</li>
+            <li>Try different timing settings — the illusion works best with ISI around 30-80ms</li>
+            <li>Use "Continuous Loop" mode to observe the effect repeatedly</li>
+        </ul>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        let mode = 'classic';
+        let isRunning = false;
+        let animationId = null;
+
+        const params = {
+            duration: 100,
+            isi: 50,
+            separation: 200,
+            size: 30,
+            color1: '#ff4444',
+            color2: '#44ff44'
+        };
+
+        const presets = {
+            optimal: { duration: 100, isi: 50, separation: 200, size: 30 },
+            slow: { duration: 200, isi: 100, separation: 200, size: 30 },
+            fast: { duration: 50, isi: 20, separation: 200, size: 30 },
+            close: { duration: 100, isi: 50, separation: 100, size: 30 },
+            far: { duration: 100, isi: 50, separation: 300, size: 30 }
+        };
+
+        // Set up controls
+        document.querySelectorAll('input[type="range"]').forEach(input => {
+            input.addEventListener('input', (e) => {
+                const id = e.target.id;
+                params[id] = parseInt(e.target.value);
+                document.getElementById(`${id}-val`).textContent =
+                    id === 'separation' || id === 'size' ? `${params[id]}px` : `${params[id]}ms`;
+            });
+        });
+
+        document.querySelectorAll('input[type="color"]').forEach(input => {
+            input.addEventListener('input', (e) => {
+                params[e.target.id] = e.target.value;
+            });
+        });
+
+        document.querySelectorAll('.mode-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                mode = e.target.dataset.mode;
+                stopAnimation();
+            });
+        });
+
+        document.querySelectorAll('.preset-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const preset = presets[e.target.dataset.preset];
+                Object.keys(preset).forEach(key => {
+                    params[key] = preset[key];
+                    const input = document.getElementById(key);
+                    if (input) {
+                        input.value = preset[key];
+                        document.getElementById(`${key}-val`).textContent =
+                            key === 'separation' || key === 'size' ? `${preset[key]}px` : `${preset[key]}ms`;
+                    }
+                });
+            });
+        });
+
+        function clear() {
+            ctx.fillStyle = '#0d0d1a';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function drawDot(x, y, color) {
+            ctx.beginPath();
+            ctx.arc(x, y, params.size / 2, 0, Math.PI * 2);
+            ctx.fillStyle = color;
+            ctx.fill();
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        async function runClassicPhi() {
+            const centerY = canvas.height / 2;
+            const centerX = canvas.width / 2;
+            const offset = params.separation / 2;
+
+            clear();
+            await sleep(500);
+
+            // First dot
+            drawDot(centerX - offset, centerY, params.color1);
+            await sleep(params.duration);
+
+            // ISI
+            clear();
+            await sleep(params.isi);
+
+            // Second dot
+            drawDot(centerX + offset, centerY, params.color2);
+            await sleep(params.duration);
+
+            clear();
+            isRunning = false;
+            document.getElementById('start').disabled = false;
+        }
+
+        async function runContinuousLoop() {
+            const centerY = canvas.height / 2;
+            const centerX = canvas.width / 2;
+            const offset = params.separation / 2;
+
+            while (isRunning) {
+                clear();
+
+                // First dot
+                drawDot(centerX - offset, centerY, params.color1);
+                await sleep(params.duration);
+                if (!isRunning) break;
+
+                // ISI
+                clear();
+                await sleep(params.isi);
+                if (!isRunning) break;
+
+                // Second dot
+                drawDot(centerX + offset, centerY, params.color2);
+                await sleep(params.duration);
+                if (!isRunning) break;
+
+                // ISI
+                clear();
+                await sleep(params.isi);
+                if (!isRunning) break;
+
+                // Back to first position
+                drawDot(centerX - offset, centerY, params.color1);
+                await sleep(params.duration);
+                if (!isRunning) break;
+
+                clear();
+                await sleep(params.isi);
+            }
+
+            clear();
+        }
+
+        function stopAnimation() {
+            isRunning = false;
+            clear();
+            document.getElementById('start').disabled = false;
+            document.getElementById('start').textContent = 'Start Demo (or press Space)';
+        }
+
+        function startDemo() {
+            if (mode === 'continuous' && isRunning) {
+                stopAnimation();
+                return;
+            }
+
+            if (isRunning) return;
+
+            isRunning = true;
+            document.getElementById('start').disabled = true;
+
+            if (mode === 'classic') {
+                document.getElementById('start').textContent = 'Running...';
+                runClassicPhi().then(() => {
+                    document.getElementById('start').textContent = 'Start Demo (or press Space)';
+                });
+            } else {
+                document.getElementById('start').disabled = false;
+                document.getElementById('start').textContent = 'Stop Loop';
+                runContinuousLoop();
+            }
+        }
+
+        document.getElementById('start').addEventListener('click', startDemo);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                startDemo();
+            }
+        });
+
+        // Initial clear
+        clear();
+    </script>
+</body>
+</html>
