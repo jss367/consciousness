@@ -308,17 +308,58 @@
             border-radius: 15px;
             font-size: 0.8rem;
             background: #2a2a4a;
-            color: #888;
+            color: #666;
+            position: relative;
+        }
+
+        .phase::before {
+            content: '';
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #444;
+            margin-right: 8px;
+            vertical-align: middle;
         }
 
         .phase.active {
-            background: #6366f1;
-            color: white;
+            background: #3730a3;
+            color: #c7d2fe;
+        }
+
+        .phase.active::before {
+            background: #818cf8;
+            box-shadow: 0 0 8px #818cf8;
         }
 
         .phase.completed {
-            background: #065f46;
+            background: #064e3b;
             color: #6ee7b7;
+        }
+
+        .phase.completed::before {
+            background: #34d399;
+        }
+
+        .paused-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 16px;
+            font-size: 1.5rem;
+            color: #fbbf24;
+            display: none;
+        }
+
+        .paused-overlay.visible {
+            display: flex;
         }
     </style>
 </head>
@@ -345,6 +386,7 @@
         <div class="shape" id="shape"></div>
         <div class="countdown" id="countdown"></div>
         <div class="feedback" id="feedback"></div>
+        <div class="paused-overlay" id="paused-overlay">PAUSED (press P to resume)</div>
     </div>
 
     <div class="stats-container">
@@ -390,7 +432,7 @@
     </div>
 
     <div class="response-key">
-        Press <kbd>SPACE</kbd> when you see a <strong style="color: #3b82f6;">blue square</strong>
+        Press <kbd>SPACE</kbd> when you see a <strong style="color: #3b82f6;">blue square</strong> &nbsp;|&nbsp; Press <kbd>P</kbd> to pause
     </div>
 
     <div class="reaction-history">
@@ -441,6 +483,7 @@
         const TARGET_COLOR = 'blue';
 
         let isRunning = false;
+        let isPaused = false;
         let currentTrial = null;
         let trialTimeout = null;
         let responseWindow = false;
@@ -571,8 +614,26 @@
             el.className = 'shape';
         }
 
-        function runTrial() {
+        function togglePause() {
             if (!isRunning) return;
+
+            isPaused = !isPaused;
+            const overlay = document.getElementById('paused-overlay');
+
+            if (isPaused) {
+                overlay.classList.add('visible');
+                clearTimeout(trialTimeout);
+                hideShape();
+                responseWindow = false;
+            } else {
+                overlay.classList.remove('visible');
+                // Resume with a new trial after a short delay
+                trialTimeout = setTimeout(runTrial, 500);
+            }
+        }
+
+        function runTrial() {
+            if (!isRunning || isPaused) return;
 
             // Bias toward target (30% chance of blue square)
             let trial;
@@ -644,8 +705,10 @@
         async function startTraining() {
             if (isRunning) {
                 isRunning = false;
+                isPaused = false;
                 clearTimeout(trialTimeout);
                 hideShape();
+                document.getElementById('paused-overlay').classList.remove('visible');
                 document.getElementById('start').textContent = 'Start Training (or press Enter)';
                 return;
             }
@@ -693,6 +756,9 @@
             } else if (e.code === 'Enter' && !isRunning) {
                 e.preventDefault();
                 startTraining();
+            } else if (e.code === 'KeyP') {
+                e.preventDefault();
+                togglePause();
             }
         });
 
