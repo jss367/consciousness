@@ -592,14 +592,25 @@
             historyChart.scrollLeft = historyChart.scrollWidth;
         }
 
-        function showFeedback(type, reactionTime = null) {
+        function showFeedback(type, reactionTime = null, trial = null) {
             feedbackEl.className = 'feedback ' + type;
             if (type === 'hit') {
                 feedbackEl.textContent = `Hit! ${reactionTime}ms`;
             } else if (type === 'miss') {
                 feedbackEl.textContent = 'Missed!';
             } else if (type === 'false-alarm') {
-                feedbackEl.textContent = 'Wrong! (1s lockout)';
+                // Give specific feedback about what was wrong
+                let reason = 'Wrong!';
+                if (trial) {
+                    if (trial.shape !== TARGET_SHAPE && trial.color.name !== TARGET_COLOR) {
+                        reason = 'Wrong shape & color!';
+                    } else if (trial.shape !== TARGET_SHAPE) {
+                        reason = 'Wrong shape!';
+                    } else if (trial.color.name !== TARGET_COLOR) {
+                        reason = 'Wrong color!';
+                    }
+                }
+                feedbackEl.textContent = `${reason} (1s lockout)`;
             }
 
             setTimeout(() => {
@@ -726,7 +737,7 @@
                 addToHistory(reactionTime);
             } else {
                 stats.falseAlarms++;
-                showFeedback('false-alarm');
+                showFeedback('false-alarm', null, currentTrial);
                 startLockout();
             }
 
