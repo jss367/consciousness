@@ -100,6 +100,11 @@
             color: #fbbf24;
         }
 
+        .demo-container.locked-out {
+            border: 3px solid #f87171;
+            box-shadow: 0 0 20px rgba(248, 113, 113, 0.3);
+        }
+
         .stats-container {
             display: flex;
             gap: 30px;
@@ -399,6 +404,10 @@
             <div class="stat-label">Hit Rate</div>
         </div>
         <div class="stat-box">
+            <div class="stat-value" id="false-alarms">0</div>
+            <div class="stat-label">False Alarms</div>
+        </div>
+        <div class="stat-box">
             <div class="stat-value" id="avg-reaction">--</div>
             <div class="stat-label">Avg Reaction (ms)</div>
         </div>
@@ -487,9 +496,13 @@
 
         let isRunning = false;
         let isPaused = false;
+        let isLockedOut = false;
         let currentTrial = null;
         let trialTimeout = null;
+        let lockoutTimeout = null;
         let responseWindow = false;
+
+        const LOCKOUT_DURATION = 1000; // 1 second penalty for false alarms
 
         let stats = {
             trials: 0,
@@ -507,9 +520,9 @@
         };
 
         const phases = {
-            1: { duration: 300, trials: 20, name: 'Learning' },
-            2: { duration: 150, trials: 40, name: 'Speed' },
-            3: { duration: 80, trials: 60, name: 'Automatic' }
+            1: { duration: 300, trialsToAdvance: 20, name: 'Learning' },
+            2: { duration: 150, trialsToAdvance: 40, name: 'Speed' },
+            3: { duration: 80, trialsToAdvance: Infinity, name: 'Automatic' }
         };
 
         // Controls
@@ -536,13 +549,13 @@
         }
 
         function checkPhaseProgress() {
-            if (stats.trials >= phases[2].trials && stats.phase === 1) {
+            if (stats.trials >= phases[1].trialsToAdvance && stats.phase === 1) {
                 stats.phase = 2;
                 params.duration = phases[2].duration;
                 document.getElementById('duration').value = params.duration;
                 document.getElementById('duration-val').textContent = `${params.duration}ms`;
                 updatePhaseDisplay();
-            } else if (stats.trials >= phases[3].trials && stats.phase === 2) {
+            } else if (stats.trials >= phases[2].trialsToAdvance && stats.phase === 2) {
                 stats.phase = 3;
                 params.duration = phases[3].duration;
                 document.getElementById('duration').value = params.duration;
@@ -557,6 +570,8 @@
             const targetTrials = stats.hits + stats.misses;
             const hitRate = targetTrials > 0 ? Math.round((stats.hits / targetTrials) * 100) : 0;
             document.getElementById('hit-rate').textContent = `${hitRate}%`;
+
+            document.getElementById('false-alarms').textContent = stats.falseAlarms;
 
             if (stats.reactionTimes.length > 0) {
                 const avg = Math.round(stats.reactionTimes.reduce((a, b) => a + b, 0) / stats.reactionTimes.length);
@@ -584,13 +599,25 @@
             } else if (type === 'miss') {
                 feedbackEl.textContent = 'Missed!';
             } else if (type === 'false-alarm') {
-                feedbackEl.textContent = 'Wrong shape!';
+                feedbackEl.textContent = 'Wrong! (1s lockout)';
             }
 
             setTimeout(() => {
                 feedbackEl.textContent = '';
                 feedbackEl.className = 'feedback';
             }, 500);
+        }
+
+        function startLockout() {
+            isLockedOut = true;
+            const container = document.querySelector('.demo-container');
+            container.classList.add('locked-out');
+
+            clearTimeout(lockoutTimeout);
+            lockoutTimeout = setTimeout(() => {
+                isLockedOut = false;
+                container.classList.remove('locked-out');
+            }, LOCKOUT_DURATION);
         }
 
         function getRandomShape() {
@@ -685,6 +712,7 @@
         }
 
         function handleResponse() {
+            if (isLockedOut) return; // Ignore input during lockout
             if (!responseWindow || !currentTrial || currentTrial.responded) return;
 
             currentTrial.responded = true;
@@ -699,10 +727,17 @@
             } else {
                 stats.falseAlarms++;
                 showFeedback('false-alarm');
+                startLockout();
             }
 
             updateStats();
             checkPhaseProgress();
+        }
+
+        function clearLockout() {
+            isLockedOut = false;
+            clearTimeout(lockoutTimeout);
+            document.querySelector('.demo-container').classList.remove('locked-out');
         }
 
         async function startTraining() {
@@ -710,6 +745,7 @@
                 isRunning = false;
                 isPaused = false;
                 clearTimeout(trialTimeout);
+                clearLockout();
                 hideShape();
                 document.getElementById('paused-overlay').classList.remove('visible');
                 document.getElementById('start').textContent = 'Start Training (or press Enter)';
@@ -742,6 +778,7 @@
             document.getElementById('duration').value = params.duration;
             document.getElementById('duration-val').textContent = `${params.duration}ms`;
             historyChart.innerHTML = '';
+            clearLockout();
             updateStats();
             updatePhaseDisplay();
             document.getElementById('avg-reaction').textContent = '--';
