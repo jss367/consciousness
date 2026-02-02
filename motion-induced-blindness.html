@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Motion-Induced Blindness Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1a1a2e;
+            color: #eee;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .back-link {
+            align-self: flex-start;
+            color: #6366f1;
+            text-decoration: none;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            color: #fff;
+        }
+
+        .subtitle {
+            color: #888;
+            margin-bottom: 30px;
+            text-align: center;
+            max-width: 600px;
+            line-height: 1.5;
+        }
+
+        .demo-container {
+            background: #0d0d1a;
+            border-radius: 16px;
+            padding: 40px;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        canvas {
+            display: block;
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 20px;
+            max-width: 700px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        label {
+            font-size: 0.85rem;
+            color: #aaa;
+        }
+
+        input[type="range"] {
+            width: 120px;
+            accent-color: #6366f1;
+        }
+
+        .value-display {
+            font-size: 0.9rem;
+            color: #6366f1;
+            font-weight: 500;
+        }
+
+        button {
+            background: #6366f1;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background: #4f46e5;
+        }
+
+        .instructions {
+            background: #16213e;
+            border-radius: 12px;
+            padding: 25px;
+            max-width: 600px;
+            margin-top: 20px;
+        }
+
+        .instructions h2 {
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            color: #6366f1;
+        }
+
+        .instructions p {
+            color: #bbb;
+            line-height: 1.6;
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+        }
+
+        .instructions ul {
+            color: #bbb;
+            line-height: 1.8;
+            padding-left: 20px;
+            font-size: 0.95rem;
+        }
+
+        .instructions em {
+            color: #6366f1;
+            font-style: normal;
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-link">&larr; Back to experiments</a>
+
+    <h1>Motion-Induced Blindness</h1>
+    <p class="subtitle">Watch as clearly visible objects disappear from your awareness while you stare at them. Your brain actively suppresses what it deems unimportant.</p>
+
+    <div class="demo-container">
+        <canvas id="canvas" width="500" height="500"></canvas>
+    </div>
+
+    <div class="controls">
+        <div class="control-group">
+            <label>Rotation Speed</label>
+            <input type="range" id="speed" min="20" max="200" value="80">
+            <span class="value-display" id="speed-val">0.8x</span>
+        </div>
+        <div class="control-group">
+            <label>Dot Density</label>
+            <input type="range" id="density" min="50" max="300" value="150">
+            <span class="value-display" id="density-val">150</span>
+        </div>
+        <div class="control-group">
+            <label>Target Brightness</label>
+            <input type="range" id="brightness" min="50" max="100" value="100">
+            <span class="value-display" id="brightness-val">100%</span>
+        </div>
+    </div>
+
+    <button id="toggle">Pause</button>
+
+    <div class="instructions">
+        <h2>What to Do</h2>
+        <p>Fixate steadily on the <em>central cross</em>. Do not move your eyes. After a few seconds of staring, the yellow target dots will begin to disappear and reappear from your peripheral vision.</p>
+        <p>The dots are always there and never actually vanish. Your visual system is actively suppressing them.</p>
+
+        <h2>The Philosophical Point</h2>
+        <p>Motion-induced blindness reveals that <em>consciousness actively filters and suppresses</em> unchanging peripheral information. Your brain decides what reaches awareness based on what it considers relevant.</p>
+        <p>This demonstrates that perception is not passive reception but active construction. The stable, unmoving targets are deemed "uninteresting" compared to the dynamic motion field, so your brain literally removes them from conscious experience.</p>
+
+        <h2>Tips</h2>
+        <ul>
+            <li>Keep your gaze fixed on the central cross - do not look at the yellow dots</li>
+            <li>Be patient - the effect takes 5-15 seconds to begin</li>
+            <li>The dots may disappear one at a time or all together</li>
+            <li>Try adjusting the rotation speed to find what works best for you</li>
+        </ul>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const width = canvas.width;
+        const height = canvas.height;
+        const centerX = width / 2;
+        const centerY = height / 2;
+
+        let isRunning = true;
+        let angle = 0;
+
+        const params = {
+            speed: 0.8,
+            density: 150,
+            brightness: 100
+        };
+
+        // Generate blue dot grid positions
+        let blueDots = [];
+
+        function generateBlueDots() {
+            blueDots = [];
+            const count = params.density;
+
+            // Create dots in a grid pattern that will rotate
+            for (let i = 0; i < count; i++) {
+                // Distribute dots across the canvas area
+                const gridSize = Math.ceil(Math.sqrt(count));
+                const spacing = (width - 60) / gridSize;
+                const row = Math.floor(i / gridSize);
+                const col = i % gridSize;
+
+                const x = 30 + col * spacing + spacing / 2 - centerX;
+                const y = 30 + row * spacing + spacing / 2 - centerY;
+
+                // Calculate distance from center for this dot
+                const dist = Math.sqrt(x * x + y * y);
+
+                // Skip dots that are too close to center (to keep fixation clear)
+                // and skip dots that are too close to target positions
+                if (dist > 30 && dist < 230) {
+                    blueDots.push({ x, y });
+                }
+            }
+        }
+
+        // Yellow target positions (triangle formation around center)
+        const targetRadius = 120;
+        const targets = [
+            { angle: -Math.PI / 2 },      // Top
+            { angle: Math.PI / 6 + Math.PI },  // Bottom left
+            { angle: -Math.PI / 6 }       // Bottom right
+        ];
+
+        function getTargetPositions() {
+            return targets.map(t => ({
+                x: centerX + Math.cos(t.angle) * targetRadius,
+                y: centerY + Math.sin(t.angle) * targetRadius
+            }));
+        }
+
+        // Set up controls
+        document.getElementById('speed').addEventListener('input', (e) => {
+            params.speed = parseInt(e.target.value) / 100;
+            document.getElementById('speed-val').textContent = `${params.speed.toFixed(1)}x`;
+        });
+
+        document.getElementById('density').addEventListener('input', (e) => {
+            params.density = parseInt(e.target.value);
+            document.getElementById('density-val').textContent = params.density;
+            generateBlueDots();
+        });
+
+        document.getElementById('brightness').addEventListener('input', (e) => {
+            params.brightness = parseInt(e.target.value);
+            document.getElementById('brightness-val').textContent = `${params.brightness}%`;
+        });
+
+        document.getElementById('toggle').addEventListener('click', () => {
+            isRunning = !isRunning;
+            document.getElementById('toggle').textContent = isRunning ? 'Pause' : 'Resume';
+            if (isRunning) {
+                requestAnimationFrame(animate);
+            }
+        });
+
+        function drawFixationCross() {
+            ctx.strokeStyle = '#888';
+            ctx.lineWidth = 2;
+            const size = 12;
+
+            ctx.beginPath();
+            ctx.moveTo(centerX - size, centerY);
+            ctx.lineTo(centerX + size, centerY);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY - size);
+            ctx.lineTo(centerX, centerY + size);
+            ctx.stroke();
+        }
+
+        function drawBlueDots() {
+            ctx.fillStyle = '#4488ff';
+            const dotSize = 3;
+
+            blueDots.forEach(dot => {
+                // Rotate dot position around center
+                const rotatedX = dot.x * Math.cos(angle) - dot.y * Math.sin(angle);
+                const rotatedY = dot.x * Math.sin(angle) + dot.y * Math.cos(angle);
+
+                const screenX = centerX + rotatedX;
+                const screenY = centerY + rotatedY;
+
+                // Only draw if within canvas bounds
+                if (screenX > 0 && screenX < width && screenY > 0 && screenY < height) {
+                    ctx.beginPath();
+                    ctx.arc(screenX, screenY, dotSize, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            });
+        }
+
+        function drawTargets() {
+            const brightness = params.brightness / 100;
+            const r = Math.round(255 * brightness);
+            const g = Math.round(255 * brightness);
+            const b = Math.round(50 * brightness);
+            ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
+            const targetSize = 8;
+
+            const positions = getTargetPositions();
+            positions.forEach(pos => {
+                ctx.beginPath();
+                ctx.arc(pos.x, pos.y, targetSize, 0, Math.PI * 2);
+                ctx.fill();
+            });
+        }
+
+        function animate() {
+            if (!isRunning) return;
+
+            // Clear canvas
+            ctx.fillStyle = '#0d0d1a';
+            ctx.fillRect(0, 0, width, height);
+
+            // Update rotation angle
+            angle += 0.02 * params.speed;
+
+            // Draw elements
+            drawBlueDots();
+            drawTargets();
+            drawFixationCross();
+
+            requestAnimationFrame(animate);
+        }
+
+        // Initialize
+        generateBlueDots();
+        animate();
+    </script>
+</body>
+</html>

@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Change Blindness Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1a1a2e;
+            color: #eee;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .back-link {
+            align-self: flex-start;
+            color: #6366f1;
+            text-decoration: none;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            color: #fff;
+        }
+
+        .subtitle {
+            color: #888;
+            margin-bottom: 30px;
+            text-align: center;
+            max-width: 600px;
+            line-height: 1.5;
+        }
+
+        .demo-container {
+            background: #0d0d1a;
+            border-radius: 16px;
+            padding: 40px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        canvas {
+            display: block;
+        }
+
+        .scene-indicator {
+            text-align: center;
+            font-size: 0.95rem;
+            color: #6366f1;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+
+        .hint-text {
+            text-align: center;
+            font-size: 0.9rem;
+            color: #f59e0b;
+            margin-top: 15px;
+            min-height: 20px;
+            font-style: italic;
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 20px;
+            max-width: 700px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        label {
+            font-size: 0.85rem;
+            color: #aaa;
+        }
+
+        input[type="range"] {
+            width: 120px;
+            accent-color: #6366f1;
+        }
+
+        .value-display {
+            font-size: 0.9rem;
+            color: #6366f1;
+            font-weight: 500;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        button {
+            background: #6366f1;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background: #4f46e5;
+        }
+
+        button.secondary {
+            background: #374151;
+        }
+
+        button.secondary:hover {
+            background: #4b5563;
+        }
+
+        .instructions {
+            background: #16213e;
+            border-radius: 12px;
+            padding: 25px;
+            max-width: 600px;
+            margin-top: 20px;
+        }
+
+        .instructions h2 {
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            color: #6366f1;
+        }
+
+        .instructions p {
+            color: #bbb;
+            line-height: 1.6;
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+        }
+
+        .instructions ul {
+            color: #bbb;
+            line-height: 1.8;
+            padding-left: 20px;
+            font-size: 0.95rem;
+        }
+
+        .instructions em {
+            color: #6366f1;
+            font-style: normal;
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-link">&larr; Back to experiments</a>
+
+    <h1>Change Blindness</h1>
+    <p class="subtitle">A significant change happens right before your eyes, yet you cannot see it. The brief flicker hides what should be obvious.</p>
+
+    <div class="scene-indicator" id="scene-indicator">Scene 1 of 6</div>
+
+    <div class="demo-container">
+        <canvas id="canvas" width="600" height="400"></canvas>
+        <div class="hint-text" id="hint-text"></div>
+    </div>
+
+    <div class="controls">
+        <div class="control-group">
+            <label>Flicker Duration</label>
+            <input type="range" id="flicker-duration" min="50" max="200" value="80">
+            <span class="value-display" id="flicker-val">80ms</span>
+        </div>
+        <div class="control-group">
+            <label>Display Duration</label>
+            <input type="range" id="display-duration" min="500" max="2000" value="1000">
+            <span class="value-display" id="display-val">1000ms</span>
+        </div>
+    </div>
+
+    <div class="buttons">
+        <button id="reveal-btn">Reveal Change</button>
+        <button id="next-btn" class="secondary">Next Scene</button>
+    </div>
+
+    <div class="instructions">
+        <h2>What to Do</h2>
+        <p>Watch the scene carefully. It alternates between two versions with a brief grey flicker between them. <em>One thing changes</em> between the versions, but the flicker makes it surprisingly hard to spot.</p>
+        <p>When you think you have found the change, click "Reveal Change" to confirm. Click "Next Scene" to try another puzzle.</p>
+
+        <h2>What is Happening</h2>
+        <p>Normally, when something changes in our visual field, the <em>motion signal</em> (the transient) grabs our attention instantly. But the grey flicker creates a global transient that masks the local change, leaving your visual system unable to distinguish where the change occurred.</p>
+        <p>Without the motion signal, you must search the image piece by piece using focused attention - a surprisingly slow process for a scene with many objects.</p>
+
+        <h2>The Philosophical Point</h2>
+        <p>Change blindness reveals the <em>"grand illusion"</em> of visual awareness. We feel as though we have a rich, detailed representation of the entire visual scene. But experiments like this show that we actually sample the world very sparsely, attending to only a few things at a time.</p>
+        <p>Our sense of visual completeness is a construction - a "just-in-time" strategy where details are fetched from the world as needed, rather than stored in some internal picture. Consciousness presents an illusion of richness that the underlying mechanisms cannot support.</p>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const width = canvas.width;
+        const height = canvas.height;
+
+        // Parameters
+        let flickerDuration = 80;
+        let displayDuration = 1000;
+
+        // State
+        let currentScene = 0;
+        let showingOriginal = true;
+        let isRevealing = false;
+        let animationTimer = null;
+        let revealTimer = null;
+
+        // Scene definitions
+        const scenes = [
+            {
+                name: 'Cityscape',
+                hint: 'The sun moves position in the sky',
+                draw: (isChanged) => {
+                    // Sky gradient
+                    const gradient = ctx.createLinearGradient(0, 0, 0, height);
+                    gradient.addColorStop(0, '#1a1a4e');
+                    gradient.addColorStop(1, '#3d2a5e');
+                    ctx.fillStyle = gradient;
+                    ctx.fillRect(0, 0, width, height);
+
+                    // Sun/Moon - THE CHANGE: position shifts
+                    ctx.fillStyle = '#ffd700';
+                    ctx.beginPath();
+                    const sunX = isChanged ? 480 : 120;
+                    ctx.arc(sunX, 80, 35, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // Buildings
+                    const buildings = [
+                        { x: 20, w: 80, h: 200, color: '#2d3748' },
+                        { x: 110, w: 60, h: 280, color: '#1a202c' },
+                        { x: 180, w: 90, h: 220, color: '#2d3748' },
+                        { x: 280, w: 70, h: 300, color: '#1a202c' },
+                        { x: 360, w: 100, h: 240, color: '#2d3748' },
+                        { x: 470, w: 80, h: 260, color: '#1a202c' },
+                        { x: 540, w: 60, h: 180, color: '#2d3748' }
+                    ];
+
+                    buildings.forEach(b => {
+                        ctx.fillStyle = b.color;
+                        ctx.fillRect(b.x, height - b.h, b.w, b.h);
+
+                        // Windows
+                        ctx.fillStyle = '#ffd93d33';
+                        for (let row = 0; row < Math.floor(b.h / 30) - 1; row++) {
+                            for (let col = 0; col < Math.floor(b.w / 20) - 1; col++) {
+                                if (Math.random() > 0.3) {
+                                    ctx.fillRect(b.x + 10 + col * 18, height - b.h + 20 + row * 28, 10, 15);
+                                }
+                            }
+                        }
+                    });
+
+                    // Ground
+                    ctx.fillStyle = '#1a1a2e';
+                    ctx.fillRect(0, height - 40, width, 40);
+                }
+            },
+            {
+                name: 'Living Room',
+                hint: 'The lamp changes from yellow to blue',
+                draw: (isChanged) => {
+                    // Wall
+                    ctx.fillStyle = '#8b7355';
+                    ctx.fillRect(0, 0, width, height);
+
+                    // Floor
+                    ctx.fillStyle = '#654321';
+                    ctx.fillRect(0, height - 100, width, 100);
+
+                    // Window
+                    ctx.fillStyle = '#87ceeb';
+                    ctx.fillRect(380, 60, 150, 120);
+                    ctx.strokeStyle = '#5c4033';
+                    ctx.lineWidth = 8;
+                    ctx.strokeRect(380, 60, 150, 120);
+                    ctx.beginPath();
+                    ctx.moveTo(455, 60);
+                    ctx.lineTo(455, 180);
+                    ctx.stroke();
+
+                    // Couch
+                    ctx.fillStyle = '#4a5568';
+                    ctx.fillRect(50, 220, 250, 100);
+                    ctx.fillRect(40, 200, 30, 120);
+                    ctx.fillRect(290, 200, 30, 120);
+                    ctx.fillStyle = '#2d3748';
+                    ctx.fillRect(60, 180, 230, 50);
+
+                    // Coffee table
+                    ctx.fillStyle = '#8b4513';
+                    ctx.fillRect(100, 330, 150, 20);
+                    ctx.fillRect(110, 350, 10, 30);
+                    ctx.fillRect(230, 350, 10, 30);
+
+                    // Lamp - THE CHANGE: color changes
+                    ctx.fillStyle = '#2d2d2d';
+                    ctx.fillRect(480, 280, 15, 100);
+                    ctx.fillStyle = isChanged ? '#60a5fa' : '#fbbf24';
+                    ctx.beginPath();
+                    ctx.moveTo(440, 280);
+                    ctx.lineTo(540, 280);
+                    ctx.lineTo(510, 200);
+                    ctx.lineTo(470, 200);
+                    ctx.closePath();
+                    ctx.fill();
+
+                    // Picture frame
+                    ctx.fillStyle = '#d4af37';
+                    ctx.fillRect(180, 80, 100, 70);
+                    ctx.fillStyle = '#2d5a27';
+                    ctx.fillRect(190, 90, 80, 50);
+                }
+            },
+            {
+                name: 'Parking Lot',
+                hint: 'The red car shifts one space to the right',
+                draw: (isChanged) => {
+                    // Asphalt
+                    ctx.fillStyle = '#374151';
+                    ctx.fillRect(0, 0, width, height);
+
+                    // Parking lines
+                    ctx.strokeStyle = '#fbbf24';
+                    ctx.lineWidth = 3;
+                    for (let i = 0; i < 7; i++) {
+                        ctx.beginPath();
+                        ctx.moveTo(50 + i * 85, 100);
+                        ctx.lineTo(50 + i * 85, 250);
+                        ctx.stroke();
+                    }
+
+                    // Cars
+                    const drawCar = (x, y, color) => {
+                        ctx.fillStyle = color;
+                        ctx.fillRect(x, y, 70, 40);
+                        ctx.fillStyle = '#1f2937';
+                        ctx.fillRect(x + 10, y + 5, 20, 15);
+                        ctx.fillRect(x + 40, y + 5, 20, 15);
+                        ctx.fillStyle = '#111827';
+                        ctx.beginPath();
+                        ctx.arc(x + 15, y + 40, 8, 0, Math.PI * 2);
+                        ctx.arc(x + 55, y + 40, 8, 0, Math.PI * 2);
+                        ctx.fill();
+                    };
+
+                    // Blue car
+                    drawCar(60, 140, '#3b82f6');
+                    // Red car - THE CHANGE: position shifts
+                    drawCar(isChanged ? 230 : 145, 140, '#ef4444');
+                    // Green car
+                    drawCar(315, 140, '#22c55e');
+                    // White car
+                    drawCar(485, 140, '#e5e7eb');
+
+                    // Bottom row
+                    drawCar(100, 280, '#8b5cf6');
+                    drawCar(270, 280, '#f59e0b');
+                    drawCar(440, 280, '#6366f1');
+
+                    // Light poles
+                    ctx.fillStyle = '#6b7280';
+                    ctx.fillRect(40, 20, 8, 80);
+                    ctx.fillRect(295, 20, 8, 80);
+                    ctx.fillRect(550, 20, 8, 80);
+                    ctx.fillStyle = '#fef3c7';
+                    ctx.beginPath();
+                    ctx.arc(44, 20, 12, 0, Math.PI * 2);
+                    ctx.arc(299, 20, 12, 0, Math.PI * 2);
+                    ctx.arc(554, 20, 12, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            },
+            {
+                name: 'Night Sky',
+                hint: 'The moon moves from left to right side',
+                draw: (isChanged) => {
+                    // Sky
+                    ctx.fillStyle = '#0f0f23';
+                    ctx.fillRect(0, 0, width, height);
+
+                    // Stars
+                    ctx.fillStyle = '#fff';
+                    const starPositions = [
+                        [50, 50], [120, 80], [200, 30], [280, 90], [350, 40],
+                        [420, 70], [500, 45], [550, 100], [80, 150], [160, 180],
+                        [240, 140], [320, 170], [400, 130], [480, 160], [540, 190],
+                        [100, 230], [180, 260], [300, 220], [380, 250], [460, 240],
+                        [30, 280], [140, 300], [260, 290], [340, 310], [440, 295]
+                    ];
+                    starPositions.forEach(([x, y]) => {
+                        ctx.beginPath();
+                        ctx.arc(x, y, Math.random() * 1.5 + 0.5, 0, Math.PI * 2);
+                        ctx.fill();
+                    });
+
+                    // Moon - THE CHANGE: position shifts
+                    const moonX = isChanged ? 480 : 120;
+                    ctx.fillStyle = '#f5f5dc';
+                    ctx.beginPath();
+                    ctx.arc(moonX, 100, 45, 0, Math.PI * 2);
+                    ctx.fill();
+                    // Moon craters
+                    ctx.fillStyle = '#d4d4aa';
+                    ctx.beginPath();
+                    ctx.arc(moonX - 15, 90, 8, 0, Math.PI * 2);
+                    ctx.arc(moonX + 10, 110, 6, 0, Math.PI * 2);
+                    ctx.arc(moonX + 5, 80, 4, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // Horizon with trees
+                    ctx.fillStyle = '#1a1a2e';
+                    ctx.fillRect(0, height - 60, width, 60);
+
+                    // Tree silhouettes
+                    ctx.fillStyle = '#0d0d1a';
+                    const trees = [30, 90, 160, 250, 320, 400, 470, 530];
+                    trees.forEach(x => {
+                        ctx.beginPath();
+                        ctx.moveTo(x, height - 60);
+                        ctx.lineTo(x + 20, height - 120 - Math.random() * 30);
+                        ctx.lineTo(x + 40, height - 60);
+                        ctx.closePath();
+                        ctx.fill();
+                    });
+                }
+            },
+            {
+                name: 'Abstract Shapes',
+                hint: 'The large triangle changes from orange to purple',
+                draw: (isChanged) => {
+                    // Background
+                    ctx.fillStyle = '#1e293b';
+                    ctx.fillRect(0, 0, width, height);
+
+                    // Circle 1
+                    ctx.fillStyle = '#3b82f6';
+                    ctx.beginPath();
+                    ctx.arc(150, 120, 60, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // Circle 2
+                    ctx.fillStyle = '#22c55e';
+                    ctx.beginPath();
+                    ctx.arc(450, 300, 50, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // Rectangle 1
+                    ctx.fillStyle = '#ef4444';
+                    ctx.fillRect(80, 250, 100, 80);
+
+                    // Rectangle 2
+                    ctx.fillStyle = '#fbbf24';
+                    ctx.fillRect(400, 80, 120, 70);
+
+                    // Triangle 1 - THE CHANGE: color changes
+                    ctx.fillStyle = isChanged ? '#a855f7' : '#f97316';
+                    ctx.beginPath();
+                    ctx.moveTo(300, 100);
+                    ctx.lineTo(220, 250);
+                    ctx.lineTo(380, 250);
+                    ctx.closePath();
+                    ctx.fill();
+
+                    // Triangle 2
+                    ctx.fillStyle = '#06b6d4';
+                    ctx.beginPath();
+                    ctx.moveTo(520, 220);
+                    ctx.lineTo(480, 320);
+                    ctx.lineTo(560, 320);
+                    ctx.closePath();
+                    ctx.fill();
+
+                    // Small circles
+                    ctx.fillStyle = '#ec4899';
+                    ctx.beginPath();
+                    ctx.arc(280, 340, 30, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    ctx.fillStyle = '#8b5cf6';
+                    ctx.beginPath();
+                    ctx.arc(100, 150, 25, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            },
+            {
+                name: 'Dot Grid',
+                hint: 'One red dot moves to a different position',
+                draw: (isChanged) => {
+                    // Background
+                    ctx.fillStyle = '#111827';
+                    ctx.fillRect(0, 0, width, height);
+
+                    // Grid of dots
+                    const gridSize = 8;
+                    const spacingX = width / (gridSize + 1);
+                    const spacingY = height / (gridSize + 1);
+                    const dotRadius = 10;
+
+                    // The special red dot position
+                    const redDotOriginal = { col: 2, row: 3 };
+                    const redDotChanged = { col: 5, row: 5 };
+
+                    for (let row = 1; row <= gridSize; row++) {
+                        for (let col = 1; col <= gridSize; col++) {
+                            const x = col * spacingX;
+                            const y = row * spacingY;
+
+                            // Check if this is the red dot position
+                            const isRedOriginal = col === redDotOriginal.col && row === redDotOriginal.row;
+                            const isRedChanged = col === redDotChanged.col && row === redDotChanged.row;
+
+                            let drawDot = true;
+                            let color = '#6b7280';
+
+                            if (!isChanged) {
+                                // Original: red dot at original position
+                                if (isRedOriginal) {
+                                    color = '#ef4444';
+                                }
+                            } else {
+                                // Changed: red dot at new position
+                                if (isRedOriginal) {
+                                    color = '#6b7280'; // Original spot now grey
+                                }
+                                if (isRedChanged) {
+                                    color = '#ef4444';
+                                }
+                            }
+
+                            ctx.fillStyle = color;
+                            ctx.beginPath();
+                            ctx.arc(x, y, dotRadius, 0, Math.PI * 2);
+                            ctx.fill();
+                        }
+                    }
+                }
+            }
+        ];
+
+        // Controls
+        document.getElementById('flicker-duration').addEventListener('input', (e) => {
+            flickerDuration = parseInt(e.target.value);
+            document.getElementById('flicker-val').textContent = `${flickerDuration}ms`;
+        });
+
+        document.getElementById('display-duration').addEventListener('input', (e) => {
+            displayDuration = parseInt(e.target.value);
+            document.getElementById('display-val').textContent = `${displayDuration}ms`;
+        });
+
+        document.getElementById('reveal-btn').addEventListener('click', revealChange);
+        document.getElementById('next-btn').addEventListener('click', nextScene);
+
+        function updateSceneIndicator() {
+            document.getElementById('scene-indicator').textContent = `Scene ${currentScene + 1} of ${scenes.length}`;
+        }
+
+        function clearHint() {
+            document.getElementById('hint-text').textContent = '';
+        }
+
+        function showHint() {
+            document.getElementById('hint-text').textContent = scenes[currentScene].hint;
+        }
+
+        function drawGrey() {
+            ctx.fillStyle = '#4b5563';
+            ctx.fillRect(0, 0, width, height);
+        }
+
+        function drawScene(isChanged) {
+            ctx.clearRect(0, 0, width, height);
+            // Reset random seed for consistent window rendering
+            Math.seedrandom && Math.seedrandom('scene' + currentScene);
+            scenes[currentScene].draw(isChanged);
+        }
+
+        function flickerCycle() {
+            if (isRevealing) return;
+
+            // Draw current version
+            drawScene(showingOriginal ? false : true);
+
+            // Schedule grey blank
+            animationTimer = setTimeout(() => {
+                if (isRevealing) return;
+                drawGrey();
+
+                // Schedule next version
+                animationTimer = setTimeout(() => {
+                    if (isRevealing) return;
+                    showingOriginal = !showingOriginal;
+                    flickerCycle();
+                }, flickerDuration);
+
+            }, displayDuration);
+        }
+
+        function revealChange() {
+            isRevealing = true;
+            clearTimeout(animationTimer);
+            clearTimeout(revealTimer);
+
+            let count = 0;
+            const maxAlternations = 10;
+
+            function rapidAlternate() {
+                if (count >= maxAlternations) {
+                    // Show hint after rapid alternation
+                    showHint();
+                    // Resume normal flicker after a pause
+                    revealTimer = setTimeout(() => {
+                        isRevealing = false;
+                        showingOriginal = true;
+                        flickerCycle();
+                    }, 3000);
+                    return;
+                }
+
+                drawScene(count % 2 === 0);
+                count++;
+                revealTimer = setTimeout(rapidAlternate, 150);
+            }
+
+            rapidAlternate();
+        }
+
+        function nextScene() {
+            clearTimeout(animationTimer);
+            clearTimeout(revealTimer);
+            isRevealing = false;
+            clearHint();
+
+            currentScene = (currentScene + 1) % scenes.length;
+            showingOriginal = true;
+            updateSceneIndicator();
+            flickerCycle();
+        }
+
+        // Initialize
+        updateSceneIndicator();
+        flickerCycle();
+    </script>
+</body>
+</html>

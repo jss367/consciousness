@@ -43,18 +43,34 @@
             line-height: 1.6;
         }
 
+        main {
+            max-width: 900px;
+            width: 100%;
+        }
+
+        .category {
+            margin-bottom: 50px;
+        }
+
+        .category-title {
+            font-size: 0.9rem;
+            color: #6366f1;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+            padding-left: 5px;
+        }
+
         .experiments {
             display: grid;
-            gap: 30px;
-            max-width: 800px;
-            width: 100%;
+            gap: 20px;
         }
 
         .experiment-card {
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 16px;
-            padding: 30px;
+            padding: 25px;
             transition: transform 0.2s, box-shadow 0.2s;
             text-decoration: none;
             color: inherit;
@@ -67,30 +83,31 @@
             border-color: rgba(102, 126, 234, 0.4);
         }
 
-        .experiment-card h2 {
-            font-size: 1.4rem;
-            margin-bottom: 12px;
+        .experiment-card h3 {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
             color: #fff;
         }
 
         .experiment-card .description {
             color: #bbb;
             line-height: 1.6;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
+            font-size: 0.95rem;
         }
 
         .experiment-card .meta {
             display: flex;
-            gap: 15px;
+            gap: 10px;
             flex-wrap: wrap;
         }
 
         .tag {
             background: rgba(102, 126, 234, 0.2);
             color: #a5b4fc;
-            padding: 4px 12px;
+            padding: 3px 10px;
             border-radius: 20px;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
         }
 
         footer {
@@ -119,34 +136,96 @@
         </p>
     </header>
 
-    <main class="experiments">
-        <a href="color-phi-phenomenon.html" class="experiment-card">
-            <h2>Color Phi Phenomenon</h2>
-            <p class="description">
-                Experience the illusion central to Dennett's <em>Consciousness Explained</em>.
-                Watch as your brain "fills in" motion and color changes that never actually occurred,
-                raising deep questions about the timing of conscious experience.
-            </p>
-            <div class="meta">
-                <span class="tag">Dennett</span>
-                <span class="tag">Visual Illusion</span>
-                <span class="tag">Temporal Binding</span>
+    <main>
+        <section class="category">
+            <h2 class="category-title">Perception & Construction</h2>
+            <div class="experiments">
+                <a href="color-phi-phenomenon.html" class="experiment-card">
+                    <h3>Color Phi Phenomenon</h3>
+                    <p class="description">
+                        Watch as your brain "fills in" motion and color changes that never actually occurred,
+                        raising deep questions about the timing of conscious experience.
+                    </p>
+                    <div class="meta">
+                        <span class="tag">Visual Illusion</span>
+                        <span class="tag">Temporal Binding</span>
+                    </div>
+                </a>
+                <a href="motion-induced-blindness.html" class="experiment-card">
+                    <h3>Motion-Induced Blindness</h3>
+                    <p class="description">
+                        Stare at a rotating pattern and watch as stationary objects vanish from your awareness,
+                        even though they never move or disappear.
+                    </p>
+                    <div class="meta">
+                        <span class="tag">Visual Suppression</span>
+                        <span class="tag">Attention</span>
+                    </div>
+                </a>
             </div>
-        </a>
+        </section>
 
-        <a href="unconscious-response.html" class="experiment-card">
-            <h2>Unconscious Response Training</h2>
-            <p class="description">
-                Train yourself to respond to a blue square before conscious awareness kicks in.
-                With practice, you'll press the key <em>before</em> you consciously recognize what you saw —
-                demonstrating that awareness isn't necessary for behavioral responses.
-            </p>
-            <div class="meta">
-                <span class="tag">Automaticity</span>
-                <span class="tag">Reaction Time</span>
-                <span class="tag">Subliminal Processing</span>
+        <section class="category">
+            <h2 class="category-title">Attention & Awareness</h2>
+            <div class="experiments">
+                <a href="unconscious-response.html" class="experiment-card">
+                    <h3>Unconscious Response Training</h3>
+                    <p class="description">
+                        Train yourself to respond to a stimulus before conscious awareness kicks in,
+                        demonstrating that awareness isn't necessary for behavioral responses.
+                    </p>
+                    <div class="meta">
+                        <span class="tag">Automaticity</span>
+                        <span class="tag">Subliminal Processing</span>
+                    </div>
+                </a>
+                <a href="change-blindness.html" class="experiment-card">
+                    <h3>Change Blindness</h3>
+                    <p class="description">
+                        Large changes happen right in front of you during brief flickers. Can you spot them?
+                        Reveals that our rich visual experience is largely an illusion.
+                    </p>
+                    <div class="meta">
+                        <span class="tag">Grand Illusion</span>
+                        <span class="tag">Visual Awareness</span>
+                    </div>
+                </a>
             </div>
-        </a>
+        </section>
+
+        <section class="category">
+            <h2 class="category-title">Agency & Will</h2>
+            <div class="experiments">
+                <a href="intentional-binding.html" class="experiment-card">
+                    <h3>Intentional Binding</h3>
+                    <p class="description">
+                        Does causing an event change how you perceive time? Compare your timing judgments
+                        when you act voluntarily versus when events happen automatically.
+                    </p>
+                    <div class="meta">
+                        <span class="tag">Sense of Agency</span>
+                        <span class="tag">Time Perception</span>
+                    </div>
+                </a>
+            </div>
+        </section>
+
+        <section class="category">
+            <h2 class="category-title">Self & Narrative</h2>
+            <div class="experiments">
+                <a href="stopped-clock.html" class="experiment-card">
+                    <h3>Stopped Clock Illusion</h3>
+                    <p class="description">
+                        When you shift your gaze to a clock, the first second seems frozen.
+                        Your brain edits your experience of time to create the illusion of continuity.
+                    </p>
+                    <div class="meta">
+                        <span class="tag">Chronostasis</span>
+                        <span class="tag">Temporal Illusion</span>
+                    </div>
+                </a>
+            </div>
+        </section>
     </main>
 
     <footer>
