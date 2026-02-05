@@ -313,13 +313,13 @@
     <div class="controls">
         <div class="control-group">
             <label>Duration</label>
-            <input type="range" id="duration" min="30" max="300" value="100">
-            <span class="value-display" id="duration-val">100ms</span>
+            <input type="range" id="duration" min="30" max="300" value="60">
+            <span class="value-display" id="duration-val">60ms</span>
         </div>
         <div class="control-group">
             <label>Interval</label>
-            <input type="range" id="isi" min="0" max="200" value="50">
-            <span class="value-display" id="isi-val">50ms</span>
+            <input type="range" id="isi" min="0" max="200" value="60">
+            <span class="value-display" id="isi-val">60ms</span>
         </div>
         <div class="control-group">
             <label>Separation</label>
@@ -396,8 +396,8 @@
         let animationId = null;
 
         const params = {
-            duration: 100,
-            isi: 50,
+            duration: 60,
+            isi: 60,
             separation: 200,
             size: 30,
             color1: '#ff4444',
@@ -405,11 +405,11 @@
         };
 
         const presets = {
-            optimal: { duration: 100, isi: 50, separation: 200, size: 30 },
-            slow: { duration: 200, isi: 100, separation: 200, size: 30 },
-            fast: { duration: 50, isi: 20, separation: 200, size: 30 },
-            close: { duration: 100, isi: 50, separation: 100, size: 30 },
-            far: { duration: 100, isi: 50, separation: 300, size: 30 }
+            optimal: { duration: 60, isi: 60, separation: 200, size: 30 },
+            slow: { duration: 150, isi: 100, separation: 200, size: 30 },
+            fast: { duration: 40, isi: 30, separation: 200, size: 30 },
+            close: { duration: 60, isi: 60, separation: 100, size: 30 },
+            far: { duration: 60, isi: 60, separation: 300, size: 30 }
         };
 
         // Set up controls
