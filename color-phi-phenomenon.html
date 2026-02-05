@@ -567,6 +567,8 @@
 
         document.addEventListener('keydown', (e) => {
             if (e.code === 'Space') {
+                const tag = document.activeElement.tagName.toLowerCase();
+                if (tag === 'input' || tag === 'textarea') return;
                 e.preventDefault();
                 startDemo();
             }
