@@ -292,9 +292,55 @@
     <h1>Color Phi Phenomenon</h1>
     <p class="subtitle">Focus on the cross in the center. Press Start when you're ready.</p>
 
+    <div class="mode-toggle">
+        <button class="mode-btn active" data-mode="classic">Classic Phi</button>
+        <button class="mode-btn" data-mode="continuous">Continuous Loop</button>
+    </div>
+
     <div class="demo-container">
         <div class="fixation-cross">+</div>
         <canvas id="canvas" width="500" height="300"></canvas>
+    </div>
+
+    <div class="preset-buttons">
+        <button class="preset-btn" data-preset="optimal">Optimal</button>
+        <button class="preset-btn" data-preset="slow">Slow</button>
+        <button class="preset-btn" data-preset="fast">Fast</button>
+        <button class="preset-btn" data-preset="close">Close</button>
+        <button class="preset-btn" data-preset="far">Far</button>
+    </div>
+
+    <div class="controls">
+        <div class="control-group">
+            <label>Duration</label>
+            <input type="range" id="duration" min="30" max="300" value="100">
+            <span class="value-display" id="duration-val">100ms</span>
+        </div>
+        <div class="control-group">
+            <label>Interval</label>
+            <input type="range" id="isi" min="0" max="200" value="50">
+            <span class="value-display" id="isi-val">50ms</span>
+        </div>
+        <div class="control-group">
+            <label>Separation</label>
+            <input type="range" id="separation" min="50" max="300" value="200">
+            <span class="value-display" id="separation-val">200px</span>
+        </div>
+        <div class="control-group">
+            <label>Size</label>
+            <input type="range" id="size" min="10" max="60" value="30">
+            <span class="value-display" id="size-val">30px</span>
+        </div>
+        <div class="control-group color-picker-group">
+            <div class="color-item">
+                <label>Color 1</label>
+                <input type="color" id="color1" value="#ff4444">
+            </div>
+            <div class="color-item">
+                <label>Color 2</label>
+                <input type="color" id="color2" value="#44ff44">
+            </div>
+        </div>
     </div>
 
     <button id="start">Start Demo (or press Space)</button>
@@ -331,58 +377,7 @@
         </div>
 
         <div class="instructions" style="margin-top: 20px;">
-            <h2>Explore Further</h2>
-            <p>Try adjusting the settings below to see how they affect the illusion.</p>
-        </div>
-
-        <div class="mode-toggle" style="margin-top: 30px;">
-            <button class="mode-btn active" data-mode="classic">Classic Phi</button>
-            <button class="mode-btn" data-mode="continuous">Continuous Loop</button>
-        </div>
-
-        <div class="preset-buttons">
-            <button class="preset-btn" data-preset="optimal">Optimal Settings</button>
-            <button class="preset-btn" data-preset="slow">Slow Motion</button>
-            <button class="preset-btn" data-preset="fast">Very Fast</button>
-            <button class="preset-btn" data-preset="close">Close Together</button>
-            <button class="preset-btn" data-preset="far">Far Apart</button>
-        </div>
-
-        <div class="controls">
-            <div class="control-group">
-                <label>Stimulus Duration</label>
-                <input type="range" id="duration" min="30" max="300" value="100">
-                <span class="value-display" id="duration-val">100ms</span>
-            </div>
-            <div class="control-group">
-                <label>Inter-Stimulus Interval</label>
-                <input type="range" id="isi" min="0" max="200" value="50">
-                <span class="value-display" id="isi-val">50ms</span>
-            </div>
-            <div class="control-group">
-                <label>Dot Separation</label>
-                <input type="range" id="separation" min="50" max="300" value="200">
-                <span class="value-display" id="separation-val">200px</span>
-            </div>
-            <div class="control-group">
-                <label>Dot Size</label>
-                <input type="range" id="size" min="10" max="60" value="30">
-                <span class="value-display" id="size-val">30px</span>
-            </div>
-            <div class="control-group color-picker-group">
-                <div class="color-item">
-                    <label>Color 1</label>
-                    <input type="color" id="color1" value="#ff4444">
-                </div>
-                <div class="color-item">
-                    <label>Color 2</label>
-                    <input type="color" id="color2" value="#44ff44">
-                </div>
-            </div>
-        </div>
-
-        <div class="instructions" style="margin-top: 20px;">
-            <h2>Tips for Best Results</h2>
+            <h2>Tips</h2>
             <ul>
                 <li>Keep your eyes fixed on the central cross</li>
                 <li>Use peripheral vision to observe the dots</li>

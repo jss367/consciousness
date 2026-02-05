@@ -225,6 +225,24 @@
         <canvas id="canvas" width="500" height="500"></canvas>
     </div>
 
+    <div class="controls">
+        <div class="control-group">
+            <label>Rotation Speed</label>
+            <input type="range" id="speed" min="20" max="200" value="80">
+            <span class="value-display" id="speed-val">0.8x</span>
+        </div>
+        <div class="control-group">
+            <label>Dot Density</label>
+            <input type="range" id="density" min="50" max="300" value="150">
+            <span class="value-display" id="density-val">150</span>
+        </div>
+        <div class="control-group">
+            <label>Target Brightness</label>
+            <input type="range" id="brightness" min="50" max="100" value="100">
+            <span class="value-display" id="brightness-val">100%</span>
+        </div>
+    </div>
+
     <button id="toggle">Pause</button>
 
     <div class="reflection-section">
@@ -257,29 +275,6 @@
             <h2>The Philosophical Point</h2>
             <p>Motion-induced blindness reveals that <em>consciousness actively filters and suppresses</em> information. Perception is not passive reception — it's active construction.</p>
             <p>Your brain decides what reaches awareness based on what it considers relevant. Things that are objectively present can be completely absent from your experience.</p>
-        </div>
-
-        <div class="instructions" style="margin-top: 20px;">
-            <h2>Explore Further</h2>
-            <p>Try adjusting the settings below to see how they affect the phenomenon.</p>
-        </div>
-
-        <div class="controls" style="margin-top: 30px;">
-            <div class="control-group">
-                <label>Rotation Speed</label>
-                <input type="range" id="speed" min="20" max="200" value="80">
-                <span class="value-display" id="speed-val">0.8x</span>
-            </div>
-            <div class="control-group">
-                <label>Dot Density</label>
-                <input type="range" id="density" min="50" max="300" value="150">
-                <span class="value-display" id="density-val">150</span>
-            </div>
-            <div class="control-group">
-                <label>Target Brightness</label>
-                <input type="range" id="brightness" min="50" max="100" value="100">
-                <span class="value-display" id="brightness-val">100%</span>
-            </div>
         </div>
 
         <div class="instructions" style="margin-top: 20px;">
