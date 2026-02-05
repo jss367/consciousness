@@ -142,54 +142,155 @@
             color: #6366f1;
             font-style: normal;
         }
+
+        .reflection-section {
+            background: #16213e;
+            border-radius: 12px;
+            padding: 25px;
+            max-width: 600px;
+            margin: 30px 0;
+            text-align: center;
+        }
+
+        .reflection-section h2 {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            color: #fff;
+        }
+
+        .reflection-section p {
+            color: #888;
+            font-size: 0.85rem;
+            margin-bottom: 15px;
+        }
+
+        .reflection-section textarea {
+            width: 100%;
+            height: 100px;
+            background: #0d0d1a;
+            border: 1px solid #374151;
+            border-radius: 8px;
+            color: #eee;
+            padding: 12px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            resize: vertical;
+        }
+
+        .reflection-section textarea:focus {
+            outline: none;
+            border-color: #6366f1;
+        }
+
+        .scroll-hint {
+            text-align: center;
+            color: #6366f1;
+            margin: 40px 0 20px;
+            font-size: 0.9rem;
+        }
+
+        .scroll-hint .arrow {
+            display: block;
+            font-size: 1.5rem;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(10px); }
+            60% { transform: translateY(5px); }
+        }
+
+        .explanation-section {
+            max-width: 600px;
+            margin-top: 60px;
+            padding-top: 40px;
+            border-top: 1px solid #374151;
+        }
+
+        .explanation-section h2 {
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            color: #fff;
+        }
     </style>
 </head>
 <body>
     <a href="index.html" class="back-link">&larr; Back to experiments</a>
 
     <h1>Motion-Induced Blindness</h1>
-    <p class="subtitle">Watch as clearly visible objects disappear from your awareness while you stare at them. Your brain actively suppresses what it deems unimportant.</p>
+    <p class="subtitle">Stare at the central cross. Don't move your eyes. Just watch.</p>
 
     <div class="demo-container">
         <canvas id="canvas" width="500" height="500"></canvas>
     </div>
 
-    <div class="controls">
-        <div class="control-group">
-            <label>Rotation Speed</label>
-            <input type="range" id="speed" min="20" max="200" value="80">
-            <span class="value-display" id="speed-val">0.8x</span>
-        </div>
-        <div class="control-group">
-            <label>Dot Density</label>
-            <input type="range" id="density" min="50" max="300" value="150">
-            <span class="value-display" id="density-val">150</span>
-        </div>
-        <div class="control-group">
-            <label>Target Brightness</label>
-            <input type="range" id="brightness" min="50" max="100" value="100">
-            <span class="value-display" id="brightness-val">100%</span>
-        </div>
-    </div>
-
     <button id="toggle">Pause</button>
 
-    <div class="instructions">
-        <h2>What to Do</h2>
-        <p>Fixate steadily on the <em>central cross</em>. Do not move your eyes. After a few seconds of staring, the yellow target dots will begin to disappear and reappear from your peripheral vision.</p>
-        <p>The dots are always there and never actually vanish. Your visual system is actively suppressing them.</p>
+    <div class="reflection-section">
+        <h2>What did you notice?</h2>
+        <p>Stare at the cross for at least 15-20 seconds, then describe what you observed. (This stays in your browser — we don't record it.)</p>
+        <textarea placeholder="Write your observations here..."></textarea>
+    </div>
 
-        <h2>The Philosophical Point</h2>
-        <p>Motion-induced blindness reveals that <em>consciousness actively filters and suppresses</em> unchanging peripheral information. Your brain decides what reaches awareness based on what it considers relevant.</p>
-        <p>This demonstrates that perception is not passive reception but active construction. The stable, unmoving targets are deemed "uninteresting" compared to the dynamic motion field, so your brain literally removes them from conscious experience.</p>
+    <div class="scroll-hint">
+        <span>Try it a few more times, then scroll down to learn more</span>
+        <span class="arrow">↓</span>
+    </div>
 
-        <h2>Tips</h2>
-        <ul>
-            <li>Keep your gaze fixed on the central cross - do not look at the yellow dots</li>
-            <li>Be patient - the effect takes 5-15 seconds to begin</li>
-            <li>The dots may disappear one at a time or all together</li>
-            <li>Try adjusting the rotation speed to find what works best for you</li>
-        </ul>
+    <div class="explanation-section">
+        <h2>What's Actually Happening</h2>
+
+        <div class="instructions">
+            <h2>The Reality</h2>
+            <p>The yellow dots <em>never move and never disappear</em>. They are always there, exactly where they started. Yet you likely perceived them vanishing and reappearing.</p>
+            <p>This isn't a trick or animation — your brain is actively <em>suppressing</em> them from your conscious awareness.</p>
+        </div>
+
+        <div class="instructions" style="margin-top: 20px;">
+            <h2>Why This Happens</h2>
+            <p>Your visual system prioritizes change and motion. The rotating blue dots are constantly changing, while the yellow dots just sit there unchanging.</p>
+            <p>Your brain decides the stationary dots are "uninteresting" compared to the dynamic motion field — and literally removes them from your conscious experience.</p>
+        </div>
+
+        <div class="instructions" style="margin-top: 20px;">
+            <h2>The Philosophical Point</h2>
+            <p>Motion-induced blindness reveals that <em>consciousness actively filters and suppresses</em> information. Perception is not passive reception — it's active construction.</p>
+            <p>Your brain decides what reaches awareness based on what it considers relevant. Things that are objectively present can be completely absent from your experience.</p>
+        </div>
+
+        <div class="instructions" style="margin-top: 20px;">
+            <h2>Explore Further</h2>
+            <p>Try adjusting the settings below to see how they affect the phenomenon.</p>
+        </div>
+
+        <div class="controls" style="margin-top: 30px;">
+            <div class="control-group">
+                <label>Rotation Speed</label>
+                <input type="range" id="speed" min="20" max="200" value="80">
+                <span class="value-display" id="speed-val">0.8x</span>
+            </div>
+            <div class="control-group">
+                <label>Dot Density</label>
+                <input type="range" id="density" min="50" max="300" value="150">
+                <span class="value-display" id="density-val">150</span>
+            </div>
+            <div class="control-group">
+                <label>Target Brightness</label>
+                <input type="range" id="brightness" min="50" max="100" value="100">
+                <span class="value-display" id="brightness-val">100%</span>
+            </div>
+        </div>
+
+        <div class="instructions" style="margin-top: 20px;">
+            <h2>Tips</h2>
+            <ul>
+                <li>Keep your gaze fixed on the central cross — do not look at the yellow dots</li>
+                <li>Be patient — the effect takes 5-15 seconds to begin</li>
+                <li>The dots may disappear one at a time or all together</li>
+                <li>Try adjusting the rotation speed to find what works best for you</li>
+            </ul>
+        </div>
     </div>
 
     <script>
