@@ -308,6 +308,7 @@
         <button class="preset-btn" data-preset="fast">Fast</button>
         <button class="preset-btn" data-preset="close">Close</button>
         <button class="preset-btn" data-preset="far">Far</button>
+        <button class="preset-btn" id="bg-toggle">White BG</button>
     </div>
 
     <div class="controls">
@@ -394,6 +395,7 @@
         let mode = 'classic';
         let isRunning = false;
         let animationId = null;
+        let darkBg = true;
 
         const params = {
             duration: 60,
@@ -453,7 +455,7 @@
         });
 
         function clear() {
-            ctx.fillStyle = '#0d0d1a';
+            ctx.fillStyle = darkBg ? '#0d0d1a' : '#ffffff';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
         }
 
@@ -564,6 +566,24 @@
         }
 
         document.getElementById('start').addEventListener('click', startDemo);
+
+        document.getElementById('bg-toggle').addEventListener('click', () => {
+            darkBg = !darkBg;
+            const btn = document.getElementById('bg-toggle');
+            const container = document.querySelector('.demo-container');
+            const cross = document.querySelector('.fixation-cross');
+
+            if (darkBg) {
+                btn.textContent = 'White BG';
+                container.style.background = '#0d0d1a';
+                cross.style.color = '#444';
+            } else {
+                btn.textContent = 'Dark BG';
+                container.style.background = '#ffffff';
+                cross.style.color = '#ccc';
+            }
+            clear();
+        });
 
         document.addEventListener('keydown', (e) => {
             if (e.code === 'Space') {
