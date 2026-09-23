@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blind Spot Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1a1a2e;
+            color: #eee;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .back-link {
+            align-self: flex-start;
+            color: #6366f1;
+            text-decoration: none;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            color: #fff;
+        }
+
+        .subtitle {
+            color: #888;
+            margin-bottom: 30px;
+            text-align: center;
+            max-width: 600px;
+            line-height: 1.5;
+        }
+
+        .demo-container {
+            background: #0d0d1a;
+            border-radius: 16px;
+            padding: 40px;
+            margin-bottom: 30px;
+            position: relative;
+            max-width: 100%;
+        }
+
+        canvas {
+            display: block;
+            max-width: 100%;
+            height: auto;
+        }
+
+        .step-label {
+            color: #aaa;
+            font-size: 0.95rem;
+            margin-bottom: 15px;
+            text-align: center;
+            max-width: 600px;
+            line-height: 1.5;
+        }
+
+        .step-label em {
+            color: #6366f1;
+            font-style: normal;
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 20px;
+            max-width: 700px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        label {
+            font-size: 0.85rem;
+            color: #aaa;
+        }
+
+        input[type="range"] {
+            width: 140px;
+            accent-color: #6366f1;
+        }
+
+        .value-display {
+            font-size: 0.9rem;
+            color: #6366f1;
+            font-weight: 500;
+        }
+
+        .buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        button {
+            background: #6366f1;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background: #4f46e5;
+        }
+
+        button.secondary {
+            background: #374151;
+        }
+
+        button.secondary:hover {
+            background: #4b5563;
+        }
+
+        .mode-buttons button,
+        #eye {
+            padding: 10px 20px;
+            font-size: 0.9rem;
+        }
+
+        .instructions {
+            background: #16213e;
+            border-radius: 12px;
+            padding: 25px;
+            max-width: 600px;
+            margin-top: 20px;
+        }
+
+        .instructions h2 {
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            color: #6366f1;
+        }
+
+        .instructions p {
+            color: #bbb;
+            line-height: 1.6;
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+        }
+
+        .instructions ul {
+            color: #bbb;
+            line-height: 1.8;
+            padding-left: 20px;
+            font-size: 0.95rem;
+        }
+
+        .instructions em {
+            color: #6366f1;
+            font-style: normal;
+        }
+
+        .reflection-section {
+            background: #16213e;
+            border-radius: 12px;
+            padding: 25px;
+            max-width: 600px;
+            width: 100%;
+            margin: 30px 0;
+            text-align: center;
+        }
+
+        .reflection-section h2 {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            color: #fff;
+        }
+
+        .reflection-section p {
+            color: #888;
+            font-size: 0.85rem;
+            margin-bottom: 15px;
+        }
+
+        .reflection-section textarea {
+            width: 100%;
+            height: 100px;
+            background: #0d0d1a;
+            border: 1px solid #374151;
+            border-radius: 8px;
+            color: #eee;
+            padding: 12px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            resize: vertical;
+        }
+
+        .reflection-section textarea:focus {
+            outline: none;
+            border-color: #6366f1;
+        }
+
+        .scroll-hint {
+            text-align: center;
+            color: #6366f1;
+            margin: 40px 0 20px;
+            font-size: 0.9rem;
+        }
+
+        .scroll-hint .arrow {
+            display: block;
+            font-size: 1.5rem;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(10px); }
+            60% { transform: translateY(5px); }
+        }
+
+        .explanation-section {
+            max-width: 600px;
+            margin-top: 60px;
+            padding-top: 40px;
+            border-top: 1px solid #374151;
+        }
+
+        .explanation-section h2 {
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-link">&larr; Back to experiments</a>
+
+    <h1>The Blind Spot</h1>
+    <p class="subtitle">Close one eye. Stare at the cross with the other. Slowly move your head toward or away from the screen.</p>
+
+    <p class="step-label" id="step-label"></p>
+
+    <div class="demo-container">
+        <canvas id="canvas" width="900" height="400"></canvas>
+    </div>
+
+    <div class="buttons mode-buttons" id="mode-buttons">
+        <button data-mode="dot">1. Find it</button>
+        <button data-mode="line" class="secondary">2. Broken line</button>
+        <button data-mode="pattern" class="secondary">3. Hole in a pattern</button>
+        <button data-mode="flicker" class="secondary">4. Flickering patch</button>
+    </div>
+
+    <div class="controls">
+        <div class="control-group">
+            <label>Open Eye</label>
+            <button id="eye" class="secondary">Right eye</button>
+        </div>
+        <div class="control-group">
+            <label>Target Distance</label>
+            <input type="range" id="distance" min="200" max="720" value="420">
+            <span class="value-display" id="distance-val">420 px</span>
+        </div>
+        <div class="control-group">
+            <label>Target Size</label>
+            <input type="range" id="size" min="8" max="40" value="22">
+            <span class="value-display" id="size-val">22 px</span>
+        </div>
+    </div>
+
+    <div class="reflection-section">
+        <h2>What did you notice?</h2>
+        <p>Try all four steps, then describe what you saw where the target should have been. (This is just for you; I don't record it. But it's helpful to be clear about what you saw.)</p>
+        <textarea placeholder="Write your observations here..."></textarea>
+    </div>
+
+    <div class="scroll-hint">
+        <span>Try each step a few times, then scroll down to learn more</span>
+        <span class="arrow">↓</span>
+    </div>
+
+    <div class="explanation-section">
+        <h2>What's Actually Happening</h2>
+
+        <div class="instructions">
+            <h2>The Reality</h2>
+            <p>Where the optic nerve leaves each eye, the retina has <em>no light receptors at all</em>. This patch, the optic disc, sits about 15° from the center of your gaze toward your temple, and it covers roughly 5° by 7° of your visual field. That's big enough to hide a face across a room.</p>
+            <p>When the red dot lands on that patch, no signal from it reaches the brain. Yet you never see a black hole in your vision, even with one eye closed.</p>
+        </div>
+
+        <div class="instructions" style="margin-top: 20px;">
+            <h2>What the Later Steps Show</h2>
+            <p>In step 2 the line has a gap exactly where your blind spot is, but most people see an unbroken line. In step 3 the stripes have a solid hole, and the hole disappears into stripes.</p>
+            <p>Step 4 is the strangest. The patch keeps switching colors, which is the kind of change your eyes normally can't ignore. Inside the blind spot you see steady stripes. Whatever you experience there is not tracking what is on the screen.</p>
+        </div>
+
+        <div class="instructions" style="margin-top: 20px;">
+            <h2>The Philosophical Point</h2>
+            <p>It's tempting to say the brain <em>fills in</em> the blind spot, painting stripes over the hole the way a photo editor would. Dennett argues this gets it backwards. Filling in would need an inner screen and someone watching it.</p>
+            <p>His alternative is that the brain simply <em>never registers the absence</em>. No neurons report "nothing here," so nothing seems missing. The brain concludes "more of the same" and moves on. Dennett's way of putting it: the absence of a representation is not the same as a representation of absence.</p>
+            <p>He compares this to walking into a room papered with identical portraits of Marilyn Monroe. You see "lots of Marilyns" at a glance, though your eyes have only resolved a few. The rest is a conclusion your brain has drawn, not a detailed picture it has built. Neuroscientists still debate how much active filling in the visual cortex does. Either way, your experience of a complete visual field is more sparse than it feels.</p>
+        </div>
+
+        <div class="instructions" style="margin-top: 20px;">
+            <h2>Tips</h2>
+            <ul>
+                <li>With the right eye open, cover your left eye and look at the cross on the left</li>
+                <li>Start about an arm's length from the screen and move slowly closer</li>
+                <li>If moving your head is awkward, stay still and drag the Target Distance slider instead</li>
+                <li>Once the dot vanishes, switch steps without moving your head</li>
+                <li>Resist the urge to glance at the target. It reappears the moment you look at it.</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const width = canvas.width;
+        const height = canvas.height;
+        const centerY = height / 2;
+        const margin = 90;
+
+        const params = {
+            mode: 'dot',
+            rightEye: true,
+            distance: 420,
+            size: 22
+        };
+
+        const stepLabels = {
+            dot: 'Step 1: Adjust your distance until the <em>red dot</em> vanishes. That spot is your blind spot.',
+            line: 'Step 2: The line has a gap where the dot was. Does the line look broken?',
+            pattern: 'Step 3: There is a solid hole in the stripes. Can you see it?',
+            flicker: 'Step 4: A patch is flashing between two colors. Do you see it change?'
+        };
+
+        // Pre-render the striped texture once
+        const stripes = document.createElement('canvas');
+        stripes.width = width;
+        stripes.height = height;
+        (function drawStripes() {
+            const s = stripes.getContext('2d');
+            s.fillStyle = '#0d0d1a';
+            s.fillRect(0, 0, width, height);
+            s.strokeStyle = '#4488ff';
+            s.lineWidth = 6;
+            for (let x = -height; x < width + height; x += 18) {
+                s.beginPath();
+                s.moveTo(x, 0);
+                s.lineTo(x + height, height);
+                s.stroke();
+            }
+        })();
+
+        function fixationX() {
+            return params.rightEye ? margin : width - margin;
+        }
+
+        function targetX() {
+            const offset = params.rightEye ? params.distance : -params.distance;
+            return fixationX() + offset;
+        }
+
+        function drawFixationCross() {
+            const x = fixationX();
+            const size = 12;
+
+            // Dark backing so the cross stays visible over the stripes
+            ctx.fillStyle = '#0d0d1a';
+            ctx.fillRect(x - size - 6, centerY - size - 6, (size + 6) * 2, (size + 6) * 2);
+
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(x - size, centerY);
+            ctx.lineTo(x + size, centerY);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(x, centerY - size);
+            ctx.lineTo(x, centerY + size);
+            ctx.stroke();
+        }
+
+        function drawDisk(x, color) {
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.arc(x, centerY, params.size, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function drawBrokenLine(x) {
+            const gap = params.size;
+            const start = fixationX() + (params.rightEye ? 30 : -30);
+            const end = params.rightEye ? width - 10 : 10;
+
+            ctx.strokeStyle = '#ffdd33';
+            ctx.lineWidth = 8;
+            ctx.lineCap = 'butt';
+            ctx.beginPath();
+            ctx.moveTo(start, centerY);
+            ctx.lineTo(x - Math.sign(end - start) * gap, centerY);
+            ctx.moveTo(x + Math.sign(end - start) * gap, centerY);
+            ctx.lineTo(end, centerY);
+            ctx.stroke();
+        }
+
+        function render(time) {
+            const x = targetX();
+
+            if (params.mode === 'pattern' || params.mode === 'flicker') {
+                ctx.drawImage(stripes, 0, 0);
+            } else {
+                ctx.fillStyle = '#0d0d1a';
+                ctx.fillRect(0, 0, width, height);
+            }
+
+            if (params.mode === 'dot') {
+                drawDisk(x, '#ff3344');
+            } else if (params.mode === 'line') {
+                drawBrokenLine(x);
+            } else if (params.mode === 'pattern') {
+                drawDisk(x, '#0d0d1a');
+            } else if (params.mode === 'flicker') {
+                const on = Math.floor(time / 400) % 2 === 0;
+                drawDisk(x, on ? '#ff3344' : '#33dd66');
+            }
+
+            drawFixationCross();
+            requestAnimationFrame(render);
+        }
+
+        function setMode(mode) {
+            params.mode = mode;
+            document.querySelectorAll('#mode-buttons button').forEach(btn => {
+                btn.classList.toggle('secondary', btn.dataset.mode !== mode);
+            });
+            updateStepLabel();
+        }
+
+        function updateStepLabel() {
+            const eyeHint = params.rightEye
+                ? 'Close your <em>left</em> eye and look at the cross.'
+                : 'Close your <em>right</em> eye and look at the cross.';
+            document.getElementById('step-label').innerHTML = `${eyeHint} ${stepLabels[params.mode]}`;
+        }
+
+        document.querySelectorAll('#mode-buttons button').forEach(btn => {
+            btn.addEventListener('click', () => setMode(btn.dataset.mode));
+        });
+
+        document.getElementById('eye').addEventListener('click', (e) => {
+            params.rightEye = !params.rightEye;
+            e.target.textContent = params.rightEye ? 'Right eye' : 'Left eye';
+            updateStepLabel();
+        });
+
+        document.getElementById('distance').addEventListener('input', (e) => {
+            params.distance = parseInt(e.target.value);
+            document.getElementById('distance-val').textContent = `${params.distance} px`;
+        });
+
+        document.getElementById('size').addEventListener('input', (e) => {
+            params.size = parseInt(e.target.value);
+            document.getElementById('size-val').textContent = `${params.size} px`;
+        });
+
+        // Initialize
+        updateStepLabel();
+        requestAnimationFrame(render);
+    </script>
+</body>
+</html>
