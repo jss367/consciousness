@@ -241,6 +241,12 @@
             60% { transform: translateY(5px); }
         }
 
+        @media (prefers-reduced-motion: reduce) {
+            .scroll-hint .arrow {
+                animation: none;
+            }
+        }
+
         .explanation-section {
             max-width: 600px;
             margin-top: 60px;
@@ -280,21 +286,21 @@
             <button id="eye" class="secondary">Right eye</button>
         </div>
         <div class="control-group">
-            <label>Target Distance</label>
+            <label for="distance">Target Distance</label>
             <input type="range" id="distance" min="200" max="720" value="420">
             <span class="value-display" id="distance-val">420 px</span>
         </div>
         <div class="control-group">
-            <label>Target Size</label>
+            <label for="size">Target Size</label>
             <input type="range" id="size" min="8" max="40" value="22">
             <span class="value-display" id="size-val">22 px</span>
         </div>
     </div>
 
     <div class="reflection-section">
-        <h2>What did you notice?</h2>
+        <h2 id="reflection-heading">What did you notice?</h2>
         <p>Try all four steps, then describe what you saw where the target should have been. (This is just for you; I don't record it. But it's helpful to be clear about what you saw.)</p>
-        <textarea placeholder="Write your observations here..."></textarea>
+        <textarea aria-labelledby="reflection-heading" placeholder="Write your observations here..."></textarea>
     </div>
 
     <div class="scroll-hint">
