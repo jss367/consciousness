@@ -428,7 +428,7 @@
             ctx.stroke();
         }
 
-        function render(time) {
+        function draw(time) {
             const x = targetX();
 
             if (params.mode === 'pattern' || params.mode === 'flicker') {
@@ -450,7 +450,26 @@
             }
 
             drawFixationCross();
-            requestAnimationFrame(render);
+        }
+
+        // Only flicker mode animates; static modes are drawn once per change.
+        let rafId = null;
+
+        function frame(time) {
+            draw(time);
+            rafId = requestAnimationFrame(frame);
+        }
+
+        function refresh() {
+            if (params.mode === 'flicker') {
+                if (rafId === null) rafId = requestAnimationFrame(frame);
+            } else {
+                if (rafId !== null) {
+                    cancelAnimationFrame(rafId);
+                    rafId = null;
+                }
+                draw(performance.now());
+            }
         }
 
         function setMode(mode) {
@@ -459,6 +478,7 @@
                 btn.classList.toggle('secondary', btn.dataset.mode !== mode);
             });
             updateStepLabel();
+            refresh();
         }
 
         function updateStepLabel() {
@@ -476,21 +496,24 @@
             params.rightEye = !params.rightEye;
             e.target.textContent = params.rightEye ? 'Right eye' : 'Left eye';
             updateStepLabel();
+            refresh();
         });
 
         document.getElementById('distance').addEventListener('input', (e) => {
             params.distance = parseInt(e.target.value);
             document.getElementById('distance-val').textContent = `${params.distance} px`;
+            refresh();
         });
 
         document.getElementById('size').addEventListener('input', (e) => {
             params.size = parseInt(e.target.value);
             document.getElementById('size-val').textContent = `${params.size} px`;
+            refresh();
         });
 
         // Initialize
         updateStepLabel();
-        requestAnimationFrame(render);
+        refresh();
     </script>
 </body>
 </html>
