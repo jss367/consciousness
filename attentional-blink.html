@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attentional Blink</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1a1a2e;
+            color: #eee;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .back-link {
+            align-self: flex-start;
+            color: #6366f1;
+            text-decoration: none;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            color: #fff;
+        }
+
+        .subtitle {
+            color: #888;
+            margin-bottom: 30px;
+            text-align: center;
+            max-width: 600px;
+            line-height: 1.5;
+        }
+
+        #experiment-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+
+        .phase-indicator {
+            text-align: center;
+            font-size: 0.95rem;
+            color: #6366f1;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .trial-indicator {
+            text-align: center;
+            font-size: 0.85rem;
+            color: #888;
+            margin-bottom: 20px;
+        }
+
+        .demo-container {
+            background: #0d0d1a;
+            border-radius: 16px;
+            padding: 40px;
+            margin-bottom: 20px;
+            max-width: 100%;
+        }
+
+        canvas {
+            display: block;
+            max-width: 100%;
+            height: auto;
+        }
+
+        .prompt-text {
+            text-align: center;
+            font-size: 1.05rem;
+            color: #fff;
+            margin-bottom: 15px;
+            min-height: 1.5em;
+            max-width: 600px;
+            line-height: 1.5;
+        }
+
+        .prompt-text em {
+            color: #a5b4fc;
+            font-style: normal;
+        }
+
+        .keypad {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .keypad button {
+            background: #374151;
+            border: 2px solid transparent;
+            padding: 14px 0;
+            width: 64px;
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .keypad button:hover {
+            background: #4b5563;
+        }
+
+        .keypad button[aria-pressed="true"] {
+            background: #6366f1;
+            border-color: #a5b4fc;
+        }
+
+        .buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        button {
+            background: #6366f1;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background: #4f46e5;
+        }
+
+        button:disabled {
+            background: #374151;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        button.secondary {
+            background: #374151;
+        }
+
+        button.secondary:hover {
+            background: #4b5563;
+        }
+
+        .key-hint {
+            color: #888;
+            font-size: 0.85rem;
+            text-align: center;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .results-container {
+            background: #0d0d1a;
+            border-radius: 16px;
+            padding: 40px;
+            max-width: 720px;
+            width: 100%;
+        }
+
+        .results-container h2 {
+            color: #6366f1;
+            margin-bottom: 20px;
+            font-size: 1.4rem;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .result-card {
+            background: #16213e;
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .result-card h3 {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #aaa;
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+
+        .result-card .value {
+            font-size: 1.8rem;
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .chart-card {
+            background: #16213e;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .chart-card h3 {
+            font-size: 1rem;
+            color: #fff;
+            margin-bottom: 4px;
+        }
+
+        .chart-card .chart-subtitle {
+            font-size: 0.85rem;
+            color: #aaa;
+            margin-bottom: 15px;
+            line-height: 1.4;
+        }
+
+        #chart svg {
+            display: block;
+            width: 100%;
+            height: auto;
+            overflow: visible;
+        }
+
+        #chart .dot {
+            cursor: pointer;
+            outline: none;
+        }
+
+        #chart .dot:hover circle.mark,
+        #chart .dot:focus circle.mark {
+            fill: #a5b4fc;
+        }
+
+        .tooltip {
+            position: absolute;
+            pointer-events: none;
+            background: #0d0d1a;
+            border: 1px solid #374151;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 0.85rem;
+            color: #aaa;
+            white-space: nowrap;
+            transform: translate(-50%, calc(-100% - 12px));
+        }
+
+        .tooltip strong {
+            display: block;
+            color: #fff;
+            font-size: 1rem;
+        }
+
+        details {
+            margin-top: 15px;
+            font-size: 0.85rem;
+            color: #aaa;
+        }
+
+        summary {
+            cursor: pointer;
+            color: #a5b4fc;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        th, td {
+            text-align: right;
+            padding: 6px 8px;
+            border-bottom: 1px solid #253052;
+        }
+
+        th:first-child, td:first-child {
+            text-align: left;
+        }
+
+        th {
+            color: #888;
+            font-weight: 500;
+        }
+
+        td {
+            color: #ddd;
+        }
+
+        .interpretation {
+            background: #16213e;
+            border-radius: 12px;
+            padding: 20px;
+            color: #bbb;
+            line-height: 1.7;
+            font-size: 0.95rem;
+        }
+
+        .interpretation p + p {
+            margin-top: 12px;
+        }
+
+        .interpretation em {
+            color: #a5b4fc;
+            font-style: normal;
+        }
+
+        .instructions {
+            background: #16213e;
+            border-radius: 12px;
+            padding: 25px;
+            max-width: 600px;
+            margin-top: 20px;
+        }
+
+        .instructions h2 {
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            color: #6366f1;
+        }
+
+        .instructions p {
+            color: #bbb;
+            line-height: 1.6;
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+        }
+
+        .instructions ul {
+            color: #bbb;
+            line-height: 1.8;
+            padding-left: 20px;
+            font-size: 0.95rem;
+        }
+
+        .instructions em {
+            color: #6366f1;
+            font-style: normal;
+        }
+
+        .scroll-hint {
+            text-align: center;
+            color: #6366f1;
+            margin: 40px 0 20px;
+            font-size: 0.9rem;
+        }
+
+        .scroll-hint .arrow {
+            display: block;
+            font-size: 1.5rem;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(10px); }
+            60% { transform: translateY(5px); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .scroll-hint .arrow {
+                animation: none;
+            }
+        }
+
+        .explanation-section {
+            max-width: 600px;
+            margin-top: 60px;
+            padding-top: 40px;
+            border-top: 1px solid #374151;
+        }
+
+        .explanation-section h2 {
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-link">&larr; Back to experiments</a>
+
+    <h1>Attentional Blink</h1>
+    <p class="subtitle">Letters will flash at the center of the screen, ten per second. Two of them are digits. Report both.</p>
+
+    <div id="experiment-screen">
+        <div class="phase-indicator" id="phase-indicator">Practice</div>
+        <div class="trial-indicator" id="trial-indicator"></div>
+
+        <div class="demo-container">
+            <canvas id="stream" width="360" height="240" role="img" aria-label="Rapid stream of letters with two digits hidden in it"></canvas>
+        </div>
+
+        <p class="prompt-text" id="prompt-text" aria-live="polite"></p>
+
+        <div id="ready-section">
+            <div class="buttons">
+                <button id="start-btn">Start trial</button>
+            </div>
+            <p class="key-hint">or press SPACE</p>
+        </div>
+
+        <div id="response-section" class="hidden">
+            <div class="keypad" id="keypad" role="group" aria-label="Digits you saw"></div>
+            <div class="buttons">
+                <button id="submit-btn">Done</button>
+            </div>
+            <p class="key-hint">Type the digits, then press ENTER. Pick nothing if you saw none.</p>
+        </div>
+    </div>
+
+    <div id="results-screen" class="results-container hidden">
+        <h2>Your Results</h2>
+
+        <div class="results-grid">
+            <div class="result-card">
+                <h3>Second digit seen, 200&ndash;400 ms after the first</h3>
+                <p class="value" id="blink-acc">--</p>
+            </div>
+            <div class="result-card">
+                <h3>Second digit seen, 600&ndash;800 ms after the first</h3>
+                <p class="value" id="late-acc">--</p>
+            </div>
+            <div class="result-card">
+                <h3>First digit seen</h3>
+                <p class="value" id="t1-acc">--</p>
+            </div>
+        </div>
+
+        <div class="chart-card">
+            <h3>How often you saw the second digit</h3>
+            <p class="chart-subtitle">Counting only trials where you caught the first digit. The shaded band is where most people blink.</p>
+            <div id="chart"></div>
+            <div class="tooltip hidden" id="tooltip" role="status"></div>
+            <details>
+                <summary>Show as a table</summary>
+                <table>
+                    <thead>
+                        <tr>
+                            <th scope="col">Gap</th>
+                            <th scope="col">Trials</th>
+                            <th scope="col">First digit seen</th>
+                            <th scope="col">Second digit seen (given first)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="results-table"></tbody>
+                </table>
+            </details>
+        </div>
+
+        <div class="interpretation" id="interpretation"></div>
+
+        <div class="buttons" style="margin-top: 25px; margin-bottom: 0;">
+            <button id="restart-btn">Run it again</button>
+        </div>
+    </div>
+
+    <div class="scroll-hint">
+        <span>Finish the trials, then scroll down to learn more</span>
+        <span class="arrow">↓</span>
+    </div>
+
+    <div class="explanation-section">
+        <h2>What's Actually Happening</h2>
+
+        <div class="instructions">
+            <h2>The Phenomenon</h2>
+            <p>When you pick out one target from a rapid stream, you become <em>blind to a second target</em> that arrives roughly 200 to 500 milliseconds later. Raymond, Shapiro and Arnell named this the attentional blink in 1992. The second digit is on the screen for the same 100 ms as every other item, and your eyes are pointed right at it. Yet on many trials it leaves no trace in your experience.</p>
+            <p>There is a strange exception. A second digit that comes <em>immediately</em> after the first (a gap of 100 ms) is often seen just fine. This is called lag-1 sparing. The blink only opens once the first target has started to be processed.</p>
+        </div>
+
+        <div class="instructions">
+            <h2>Why It Happens</h2>
+            <p>A popular account, from Chun and Potter, splits perception into two stages. In the first, every item in the stream is identified quickly and in parallel, but these identifications fade within a fraction of a second. In the second, a slow, one-at-a-time process consolidates an item into a form you can remember and report. While that stage is busy with the first digit, the second one is identified and then lost before its turn comes.</p>
+            <p>Missed items are not simply unseen. In a 1996 study, Luck, Vogel and Shapiro showed people words during the blink. Their brains produced the N400, a response to word <em>meaning</em>, even for words they could not report. Sergent, Baillet and Dehaene found that brain activity for seen and missed targets matches for the first few hundred milliseconds. It diverges only when a later, brain-wide wave either fires or fails to.</p>
+        </div>
+
+        <div class="instructions">
+            <h2>The Philosophical Point</h2>
+            <p>The blink separates two things we tend to lump together: a stimulus being <em>processed</em> and a stimulus being <em>experienced</em>. The word studies above suggest that items lost in the blink can still be identified, and even understood, without being experienced. This demo only records what you report, so it can't show that for your own missed digits. But if the lab findings carry over, your brain may well have registered the digit you missed. What it never did was make that content available to the rest of you: to memory, to report, to the part of you that clicks the buttons.</p>
+            <p>Dennett calls consciousness <em>fame in the brain</em>. Contents compete for influence, and the ones that win get to shape what you say and do next. On this view, the missed digit was not hidden behind a curtain. It lost the competition. The first digit was still holding the stage, and the second one's moment passed.</p>
+            <p>It also raises an awkward question. When you missed a digit, did the stream feel like it had a gap? For most people it doesn't. You don't experience the blink. You only learn about it from the score.</p>
+        </div>
+
+        <div class="instructions">
+            <h2>Tips</h2>
+            <ul>
+                <li>Keep your eyes on the center of the box for the whole stream</li>
+                <li>Report digits in any order. Only which digits you saw counts.</li>
+                <li>Guess if you had a hunch. Chance with eight possible digits is low, so lucky guesses barely move the results.</li>
+                <li>Close other tabs if the page warns about stutter. Timing matters here.</li>
+                <li>Some studies find the blink shrinks when people attend less intensely, for example while listening to music</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('stream');
+        const ctx = canvas.getContext('2d');
+
+        const ITEM_MS = 100;               // each item is on screen for 100 ms (10 per second)
+        const FIXATION_MS = 700;
+        const MAX_FRAME_GAP_MS = 60;       // a longer gap between frames means an item was skipped or held too long
+        const MIN_TARGET_MS = 80;          // a digit replaced sooner than this was cut short (allows one 60 Hz frame of jitter)
+        const LAGS = [1, 2, 3, 4, 6, 8];   // how many items after the first digit the second one appears
+        const TRIALS_PER_LAG = 4;
+        const PRACTICE_LAGS = [8, 6];
+        const MAX_RETRIES = 2;
+
+        // Letters that can't be mistaken for digits (no B, G, I, O, Q, S, Z)
+        const LETTERS = 'ACDEFHJKLMNPRTUVWXY';
+        const DIGITS = '23456789';
+
+        const phaseIndicator = document.getElementById('phase-indicator');
+        const trialIndicator = document.getElementById('trial-indicator');
+        const promptText = document.getElementById('prompt-text');
+        const readySection = document.getElementById('ready-section');
+        const responseSection = document.getElementById('response-section');
+        const startBtn = document.getElementById('start-btn');
+        const submitBtn = document.getElementById('submit-btn');
+        const keypad = document.getElementById('keypad');
+        const experimentScreen = document.getElementById('experiment-screen');
+        const resultsScreen = document.getElementById('results-screen');
+
+        let queue = [];        // trials still to run
+        let results = [];      // completed, valid main trials
+        let practiceLeft = 0;
+        let totalMain = 0;
+        let current = null;
+        let state = 'ready';   // ready, running, responding, done
+        let selected = [];
+        let streamInvalid = false;
+
+        const keyButtons = {};
+        for (const d of DIGITS) {
+            const btn = document.createElement('button');
+            btn.textContent = d;
+            btn.setAttribute('aria-pressed', 'false');
+            btn.addEventListener('click', () => toggleDigit(d));
+            keypad.appendChild(btn);
+            keyButtons[d] = btn;
+        }
+
+        function randomItem(str) {
+            return str[Math.floor(Math.random() * str.length)];
+        }
+
+        function shuffle(arr) {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        function makeTrial(lag, practice) {
+            const t1Pos = 5 + Math.floor(Math.random() * 6);
+            const t2Pos = t1Pos + lag;
+            const length = t2Pos + 8;          // seven letters after the second digit mask it
+            const t1 = randomItem(DIGITS);
+            let t2 = randomItem(DIGITS);
+            while (t2 === t1) t2 = randomItem(DIGITS);
+
+            const items = [];
+            for (let i = 0; i < length; i++) {
+                if (i === t1Pos) items.push(t1);
+                else if (i === t2Pos) items.push(t2);
+                else {
+                    let letter = randomItem(LETTERS);
+                    while (letter === items[i - 1]) letter = randomItem(LETTERS);
+                    items.push(letter);
+                }
+            }
+            return { lag, practice, items, t1Pos, t2Pos, t1, t2, retries: 0 };
+        }
+
+        function drawFrame(content, isFixation) {
+            ctx.fillStyle = '#0d0d1a';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Faint frame so the eyes have somewhere to rest between items
+            ctx.strokeStyle = '#253052';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(canvas.width / 2 - 70, canvas.height / 2 - 70, 140, 140);
+
+            if (!content) return;
+            ctx.fillStyle = isFixation ? '#888' : '#fff';
+            ctx.font = isFixation
+                ? '300 48px -apple-system, BlinkMacSystemFont, sans-serif'
+                : '600 80px ui-monospace, Menlo, Consolas, monospace';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(content, canvas.width / 2, canvas.height / 2 + 4);
+        }
+
+        function updateHeader() {
+            if (current && current.practice) {
+                phaseIndicator.textContent = 'Practice';
+                trialIndicator.textContent = `Trial ${PRACTICE_LAGS.length - practiceLeft + 1} of ${PRACTICE_LAGS.length}`;
+            } else {
+                phaseIndicator.textContent = 'Experiment';
+                trialIndicator.textContent = `Trial ${Math.min(results.length + 1, totalMain)} of ${totalMain}`;
+            }
+        }
+
+        function showReady(message) {
+            state = 'ready';
+            current = queue[0] || null;
+            updateHeader();
+            promptText.innerHTML = message;
+            readySection.classList.remove('hidden');
+            responseSection.classList.add('hidden');
+            drawFrame(null);
+        }
+
+        function runTrial() {
+            if (state !== 'ready' || !current) return;
+            state = 'running';
+            streamInvalid = false;
+            readySection.classList.add('hidden');
+            promptText.textContent = '';
+            drawFrame('+', true);
+
+            setTimeout(() => {
+                const shownMs = new Array(current.items.length).fill(0);   // how long each item stayed up
+                let start = null;
+                let last = null;
+                let lastIdx = -1;
+                let drawnAt = null;
+
+                function frame(ts) {
+                    if (start === null) start = ts;
+                    if (last !== null && ts - last > MAX_FRAME_GAP_MS) streamInvalid = true;
+                    last = ts;
+
+                    const idx = Math.floor((ts - start) / ITEM_MS);
+                    if (idx !== lastIdx && lastIdx !== -1) shownMs[lastIdx] = ts - drawnAt;
+                    if (idx >= current.items.length) {
+                        drawFrame(null);
+                        endStream(shownMs);
+                        return;
+                    }
+                    if (idx !== lastIdx) {
+                        drawFrame(current.items[idx]);
+                        drawnAt = ts;
+                        lastIdx = idx;
+                    }
+                    requestAnimationFrame(frame);
+                }
+                requestAnimationFrame(frame);
+            }, FIXATION_MS);
+        }
+
+        function endStream(shownMs) {
+            // A skipped digit has 0 ms; one swapped out early was not really shown for 100 ms
+            if (shownMs[current.t1Pos] < MIN_TARGET_MS || shownMs[current.t2Pos] < MIN_TARGET_MS) streamInvalid = true;
+            state = 'responding';
+            selected = [];
+            for (const d of DIGITS) keyButtons[d].setAttribute('aria-pressed', 'false');
+            promptText.textContent = 'Which digits did you see? Pick up to two, in any order.';
+            responseSection.classList.remove('hidden');
+        }
+
+        function toggleDigit(d) {
+            if (state !== 'responding') return;
+            if (selected.includes(d)) {
+                selected = selected.filter(x => x !== d);
+            } else {
+                if (selected.length === 2) selected.shift();
+                selected.push(d);
+            }
+            for (const key of DIGITS) {
+                keyButtons[key].setAttribute('aria-pressed', selected.includes(key) ? 'true' : 'false');
+            }
+        }
+
+        function submitResponse() {
+            if (state !== 'responding') return;
+            const trial = queue.shift();
+            const t1Seen = selected.includes(trial.t1);
+            const t2Seen = selected.includes(trial.t2);
+            const answer = `The digits were <em>${trial.t1}</em> then <em>${trial.t2}</em>.`;
+
+            let feedback;
+            let rerun = null;
+            if (streamInvalid) {
+                // A dropped or stalled frame changes what was on screen, so the trial doesn't count.
+                // Main trials rerun later with a fresh stream; practice trials rerun right away.
+                feedback = "Your browser stuttered during that stream, so it won't count.";
+                if (trial.retries < MAX_RETRIES) {
+                    rerun = Object.assign(makeTrial(trial.lag, trial.practice), { retries: trial.retries + 1 });
+                    if (trial.practice) queue.unshift(rerun);
+                    else queue.splice(Math.floor(Math.random() * (queue.length + 1)), 0, rerun);
+                } else if (!trial.practice) {
+                    totalMain--;
+                }
+            } else {
+                if (t1Seen && t2Seen) feedback = 'You caught both.';
+                else if (t1Seen) feedback = 'You missed the second one.';
+                else if (t2Seen) feedback = 'You missed the first one.';
+                else feedback = 'You missed both.';
+                if (!trial.practice) results.push({ lag: trial.lag, t1Seen, t2Seen });
+            }
+            if (trial.practice && !rerun) practiceLeft--;
+
+            if (queue.length === 0) {
+                showResults();
+                return;
+            }
+            const next = trial.practice && practiceLeft === 0
+                ? 'Practice is over. The real trials start now. Press SPACE when ready.'
+                : 'Press SPACE for the next trial.';
+            showReady(`${answer} ${feedback}<br>${next}`);
+        }
+
+        function begin() {
+            const practice = PRACTICE_LAGS.map(lag => makeTrial(lag, true));
+            const main = shuffle(LAGS.flatMap(lag => Array.from({ length: TRIALS_PER_LAG }, () => makeTrial(lag, false))));
+            queue = practice.concat(main);
+            results = [];
+            practiceLeft = practice.length;
+            totalMain = main.length;
+            experimentScreen.classList.remove('hidden');
+            resultsScreen.classList.add('hidden');
+            showReady('Look at the center of the box. Press SPACE to start a practice trial.');
+        }
+
+        // ---- Results ----
+
+        function pct(n, d) {
+            return d === 0 ? null : Math.round((n / d) * 100);
+        }
+
+        function formatPct(v) {
+            return v === null ? '--' : `${v}%`;
+        }
+
+        function summarize() {
+            return LAGS.map(lag => {
+                const rows = results.filter(r => r.lag === lag);
+                const t1Hits = rows.filter(r => r.t1Seen);
+                return {
+                    lag,
+                    ms: lag * ITEM_MS,
+                    n: rows.length,
+                    t1: pct(t1Hits.length, rows.length),
+                    t2GivenT1: pct(t1Hits.filter(r => r.t2Seen).length, t1Hits.length),
+                    t1Hits: t1Hits.length
+                };
+            });
+        }
+
+        function t2GivenT1For(lags) {
+            const t1Hits = results.filter(r => lags.includes(r.lag) && r.t1Seen);
+            return pct(t1Hits.filter(r => r.t2Seen).length, t1Hits.length);
+        }
+
+        function showResults() {
+            state = 'done';
+            experimentScreen.classList.add('hidden');
+            resultsScreen.classList.remove('hidden');
+
+            const blink = t2GivenT1For([2, 3, 4]);
+            const late = t2GivenT1For([6, 8]);
+            const lag1 = t2GivenT1For([1]);
+            document.getElementById('blink-acc').textContent = formatPct(blink);
+            document.getElementById('late-acc').textContent = formatPct(late);
+            document.getElementById('t1-acc').textContent =
+                formatPct(pct(results.filter(r => r.t1Seen).length, results.length));
+
+            const summary = summarize();
+            renderTable(summary);
+            renderChart(summary);
+            renderInterpretation(blink, late, lag1);
+        }
+
+        function renderTable(summary) {
+            const tbody = document.getElementById('results-table');
+            tbody.innerHTML = '';
+            for (const row of summary) {
+                const tr = document.createElement('tr');
+                const cells = [
+                    `${row.ms} ms`,
+                    `${row.n}`,
+                    formatPct(row.t1),
+                    row.t2GivenT1 === null ? '--' : `${row.t2GivenT1}% (of ${row.t1Hits})`
+                ];
+                for (const text of cells) {
+                    const td = document.createElement('td');
+                    td.textContent = text;
+                    tr.appendChild(td);
+                }
+                tbody.appendChild(tr);
+            }
+        }
+
+        function renderChart(summary) {
+            const SVG_NS = 'http://www.w3.org/2000/svg';
+            const W = 620, H = 280;
+            const m = { top: 20, right: 20, bottom: 48, left: 48 };
+            const plotW = W - m.left - m.right;
+            const plotH = H - m.top - m.bottom;
+            const x = lag => m.left + ((lag - 1) / (LAGS[LAGS.length - 1] - 1)) * plotW;
+            const y = v => m.top + (1 - v / 100) * plotH;
+
+            const svg = document.createElementNS(SVG_NS, 'svg');
+            svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+            svg.setAttribute('role', 'img');
+            svg.setAttribute('aria-label', 'Line chart of how often the second digit was seen at each gap after the first. Values are in the table below.');
+
+            function el(tag, attrs, parent = svg) {
+                const node = document.createElementNS(SVG_NS, tag);
+                for (const [k, v] of Object.entries(attrs)) node.setAttribute(k, v);
+                parent.appendChild(node);
+                return node;
+            }
+
+            function text(content, attrs, parent = svg) {
+                const node = el('text', attrs, parent);
+                node.textContent = content;
+                return node;
+            }
+
+            // Typical blink window: 200-500 ms
+            el('rect', { x: x(2), y: m.top, width: x(5) - x(2), height: plotH, fill: 'rgba(255,255,255,0.04)' });
+            text('typical blink', { x: (x(2) + x(5)) / 2, y: m.top + 14, fill: '#888', 'font-size': 11, 'text-anchor': 'middle' });
+
+            for (const v of [0, 25, 50, 75, 100]) {
+                el('line', { x1: m.left, x2: W - m.right, y1: y(v), y2: y(v), stroke: '#253052', 'stroke-width': 1 });
+                text(`${v}%`, { x: m.left - 8, y: y(v) + 4, fill: '#888', 'font-size': 11, 'text-anchor': 'end' });
+            }
+
+            for (const row of summary) {
+                text(`${row.ms}`, { x: x(row.lag), y: H - m.bottom + 18, fill: '#888', 'font-size': 11, 'text-anchor': 'middle' });
+            }
+            text('Gap between the two digits (ms)', { x: m.left + plotW / 2, y: H - 8, fill: '#aaa', 'font-size': 12, 'text-anchor': 'middle' });
+
+            // Line, broken wherever a lag has no usable trials
+            const color = '#7c82f5';
+            let path = '';
+            let penDown = false;
+            for (const row of summary) {
+                if (row.t2GivenT1 === null) { penDown = false; continue; }
+                path += `${penDown ? 'L' : 'M'}${x(row.lag)},${y(row.t2GivenT1)}`;
+                penDown = true;
+            }
+            el('path', { d: path, fill: 'none', stroke: color, 'stroke-width': 2, 'stroke-linejoin': 'round', 'stroke-linecap': 'round' });
+
+            // Label the lowest point: the bottom of the blink
+            const plotted = summary.filter(r => r.t2GivenT1 !== null);
+            if (plotted.length) {
+                const low = plotted.reduce((a, b) => (b.t2GivenT1 < a.t2GivenT1 ? b : a));
+                const below = low.t2GivenT1 > 85;
+                text(`${low.t2GivenT1}%`, {
+                    x: x(low.lag),
+                    y: below ? y(low.t2GivenT1) + 24 : y(low.t2GivenT1) - 14,
+                    fill: '#eee', 'font-size': 12, 'font-weight': 600, 'text-anchor': 'middle'
+                });
+            }
+
+            const tooltip = document.getElementById('tooltip');
+            const card = document.querySelector('.chart-card');
+
+            function showTip(row, g) {
+                const box = g.getBoundingClientRect();
+                const cardBox = card.getBoundingClientRect();
+                tooltip.innerHTML = '';
+                const strong = document.createElement('strong');
+                strong.textContent = `${row.t2GivenT1}% seen`;
+                tooltip.appendChild(strong);
+                tooltip.appendChild(document.createTextNode(`${row.ms} ms gap · ${row.t1Hits} trials with the first digit`));
+                tooltip.style.left = `${box.left + box.width / 2 - cardBox.left}px`;
+                tooltip.style.top = `${box.top - cardBox.top}px`;
+                tooltip.classList.remove('hidden');
+            }
+
+            function hideTip() {
+                tooltip.classList.add('hidden');
+            }
+
+            for (const row of plotted) {
+                const g = el('g', {
+                    class: 'dot',
+                    tabindex: 0,
+                    'aria-label': `${row.ms} millisecond gap: second digit seen on ${row.t2GivenT1}% of ${row.t1Hits} trials`
+                });
+                // Invisible hit target, larger than the mark
+                el('circle', { cx: x(row.lag), cy: y(row.t2GivenT1), r: 16, fill: 'transparent' }, g);
+                el('circle', { class: 'mark', cx: x(row.lag), cy: y(row.t2GivenT1), r: 5, fill: color, stroke: '#16213e', 'stroke-width': 2 }, g);
+                g.addEventListener('pointerenter', () => showTip(row, g));
+                g.addEventListener('pointerleave', hideTip);
+                g.addEventListener('focus', () => showTip(row, g));
+                g.addEventListener('blur', hideTip);
+            }
+
+            const chart = document.getElementById('chart');
+            chart.innerHTML = '';
+            chart.appendChild(svg);
+        }
+
+        function renderInterpretation(blink, late, lag1) {
+            const box = document.getElementById('interpretation');
+            let html;
+
+            if (blink === null || late === null) {
+                html = `<p>You didn't catch the first digit often enough to measure the blink. The measure only counts trials where you saw the first digit. Try again, and guess when you have even a faint sense of a digit.</p>`;
+            } else if (late - blink >= 15) {
+                html = `<p>You <em>blinked</em>. When the second digit came 200 to 400 ms after the first, you saw it ${blink}% of the time. With a longer gap of 600 to 800 ms, that rose to ${late}%. The second digit was on screen for the same 100 ms either way.</p>`;
+            } else if (blink - late >= 15) {
+                html = `<p>Your pattern ran the other way: you saw the second digit ${blink}% of the time at short gaps and ${late}% at long ones. With only a few trials per gap, a couple of lucky or unlucky trials can flip the pattern. Try another run.</p>`;
+            } else {
+                html = `<p>Your blink was <em>shallow</em>. You saw the second digit ${blink}% of the time at 200 to 400 ms and ${late}% at 600 to 800 ms. Some people show a very small blink, and with only a few trials per gap the numbers are noisy. Try another run and see if the dip appears.</p>`;
+            }
+
+            if (lag1 !== null && blink !== null && lag1 - blink >= 15) {
+                html += `<p>You also show <em>lag-1 sparing</em>: when the second digit came immediately after the first, you saw it ${lag1}% of the time. The two digits likely got through together, before the blink began.</p>`;
+            }
+
+            html += `<p>Think back to the trials you missed. Did the stream feel like it had a hole in it, or did it just seem to contain one digit?</p>`;
+            box.innerHTML = html;
+        }
+
+        // ---- Input ----
+
+        startBtn.addEventListener('click', runTrial);
+        submitBtn.addEventListener('click', submitResponse);
+        document.getElementById('restart-btn').addEventListener('click', begin);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' && state !== 'done') {
+                // Also stops SPACE from scrolling the page mid-stream
+                e.preventDefault();
+                if (state === 'ready') runTrial();
+            } else if (state === 'responding' && DIGITS.includes(e.key) && e.key.length === 1) {
+                e.preventDefault();
+                toggleDigit(e.key);
+            } else if (state === 'responding' && e.key === 'Enter' && (e.target === document.body || keypad.contains(e.target))) {
+                // Submit even if a keypad button has focus, instead of toggling that digit.
+                // Links and other controls keep their normal Enter behavior.
+                e.preventDefault();
+                submitResponse();
+            } else if (state === 'responding' && e.key === 'Backspace') {
+                e.preventDefault();
+                if (selected.length) toggleDigit(selected[selected.length - 1]);
+            }
+        });
+
+        // Switching tabs pauses animation frames, which would spoil the stream
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden && state === 'running') streamInvalid = true;
+        });
+
+        begin();
+    </script>
+</body>
+</html>
