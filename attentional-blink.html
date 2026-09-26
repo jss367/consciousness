@@ -956,8 +956,9 @@
             } else if (state === 'responding' && DIGITS.includes(e.key) && e.key.length === 1) {
                 e.preventDefault();
                 toggleDigit(e.key);
-            } else if (state === 'responding' && e.key === 'Enter') {
-                // Submit even if a keypad button has focus, instead of toggling that digit
+            } else if (state === 'responding' && e.key === 'Enter' && (e.target === document.body || keypad.contains(e.target))) {
+                // Submit even if a keypad button has focus, instead of toggling that digit.
+                // Links and other controls keep their normal Enter behavior.
                 e.preventDefault();
                 submitResponse();
             } else if (state === 'responding' && e.key === 'Backspace') {
