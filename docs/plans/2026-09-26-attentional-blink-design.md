@@ -28,7 +28,7 @@ Add an attentional blink experiment. The existing experiments show perception be
 - Line chart of second-digit accuracy by gap, with the typical blink window shaded, per-point hover and focus tooltips, and a table view
 - Interpretation text for a clear blink, a shallow or reversed pattern, and lag-1 sparing
 
-**Philosophical point:** Processing and experience come apart. Missed digits still get identified (Luck, Vogel & Shapiro 1996 found an N400 to blinked words), but they never win Dennett's "fame in the brain" and never become available for report.
+**Philosophical point:** Processing and experience come apart. Lab evidence suggests blinked items still get identified (Luck, Vogel & Shapiro 1996 found an N400 to blinked words), though this experiment only measures report and can't show that for a visitor's own missed digits. Blinked items never win Dennett's "fame in the brain" and never become available for report.
 
 ## Index Page
 
