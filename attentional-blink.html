@@ -577,7 +577,7 @@
         function makeTrial(lag, practice) {
             const t1Pos = 5 + Math.floor(Math.random() * 6);
             const t2Pos = t1Pos + lag;
-            const length = t2Pos + 7;
+            const length = t2Pos + 8;          // seven letters after the second digit mask it
             const t1 = randomItem(DIGITS);
             let t2 = randomItem(DIGITS);
             while (t2 === t1) t2 = randomItem(DIGITS);
