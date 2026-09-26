@@ -704,13 +704,15 @@
             const answer = `The digits were <em>${trial.t1}</em> then <em>${trial.t2}</em>.`;
 
             let feedback;
+            let rerun = null;
             if (streamInvalid) {
                 // A dropped or stalled frame changes what was on screen, so the trial doesn't count.
-                // Main trials rerun later with a fresh stream; practice trials are just skipped.
+                // Main trials rerun later with a fresh stream; practice trials rerun right away.
                 feedback = "Your browser stuttered during that stream, so it won't count.";
-                if (!trial.practice && trial.retries < MAX_RETRIES) {
-                    const rerun = Object.assign(makeTrial(trial.lag, false), { retries: trial.retries + 1 });
-                    queue.splice(Math.floor(Math.random() * (queue.length + 1)), 0, rerun);
+                if (trial.retries < MAX_RETRIES) {
+                    rerun = Object.assign(makeTrial(trial.lag, trial.practice), { retries: trial.retries + 1 });
+                    if (trial.practice) queue.unshift(rerun);
+                    else queue.splice(Math.floor(Math.random() * (queue.length + 1)), 0, rerun);
                 } else if (!trial.practice) {
                     totalMain--;
                 }
@@ -721,7 +723,7 @@
                 else feedback = 'You missed both.';
                 if (!trial.practice) results.push({ lag: trial.lag, t1Seen, t2Seen });
             }
-            if (trial.practice) practiceLeft--;
+            if (trial.practice && !rerun) practiceLeft--;
 
             if (queue.length === 0) {
                 showResults();
