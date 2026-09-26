@@ -523,6 +523,7 @@
         const ITEM_MS = 100;               // each item is on screen for 100 ms (10 per second)
         const FIXATION_MS = 700;
         const MAX_FRAME_GAP_MS = 60;       // a longer gap between frames means an item was skipped or held too long
+        const MIN_TARGET_MS = 80;          // a digit replaced sooner than this was cut short (allows one 60 Hz frame of jitter)
         const LAGS = [1, 2, 3, 4, 6, 8];   // how many items after the first digit the second one appears
         const TRIALS_PER_LAG = 4;
         const PRACTICE_LAGS = [8, 6];
@@ -643,10 +644,11 @@
             drawFrame('+', true);
 
             setTimeout(() => {
-                const shown = new Array(current.items.length).fill(false);
+                const shownMs = new Array(current.items.length).fill(0);   // how long each item stayed up
                 let start = null;
                 let last = null;
                 let lastIdx = -1;
+                let drawnAt = null;
 
                 function frame(ts) {
                     if (start === null) start = ts;
@@ -654,14 +656,15 @@
                     last = ts;
 
                     const idx = Math.floor((ts - start) / ITEM_MS);
+                    if (idx !== lastIdx && lastIdx !== -1) shownMs[lastIdx] = ts - drawnAt;
                     if (idx >= current.items.length) {
                         drawFrame(null);
-                        endStream(shown);
+                        endStream(shownMs);
                         return;
                     }
                     if (idx !== lastIdx) {
                         drawFrame(current.items[idx]);
-                        shown[idx] = true;
+                        drawnAt = ts;
                         lastIdx = idx;
                     }
                     requestAnimationFrame(frame);
@@ -670,8 +673,9 @@
             }, FIXATION_MS);
         }
 
-        function endStream(shown) {
-            if (!shown[current.t1Pos] || !shown[current.t2Pos]) streamInvalid = true;
+        function endStream(shownMs) {
+            // A skipped digit has 0 ms; one swapped out early was not really shown for 100 ms
+            if (shownMs[current.t1Pos] < MIN_TARGET_MS || shownMs[current.t2Pos] < MIN_TARGET_MS) streamInvalid = true;
             state = 'responding';
             selected = [];
             for (const d of DIGITS) keyButtons[d].setAttribute('aria-pressed', 'false');
